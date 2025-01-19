@@ -90,6 +90,13 @@ const Navbar = () => {
                         >
                           All Exercises
                         </Link>
+                        <Link 
+                          to="/exercises/add" 
+                          className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
+                          onClick={() => setOpenDropdown(null)}
+                        >
+                          Add Exercises
+                        </Link>
                       </div>
                     </div>
                   )}

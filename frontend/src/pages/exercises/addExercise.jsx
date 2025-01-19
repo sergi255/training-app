@@ -1,7 +1,8 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Box, Button, TextField, Typography, MenuItem, Alert } from '@mui/material';
+import { Box, Typography, Alert } from '@mui/material';
 import { addExercise } from '../../hooks/useExercises';
+import ExerciseForm from '../../components/ExerciseForm';
 
 const AddExercise = () => {
   const navigate = useNavigate();
@@ -11,16 +12,6 @@ const AddExercise = () => {
     description: '',
     muscleGroup: '',
   });
-
-  const muscleGroups = [
-    'Chest',
-    'Back',
-    'Legs',
-    'Shoulders',
-    'Arms',
-    'Core',
-    'Full Body'
-  ];
 
   const handleChange = (e) => {
     setFormData({
@@ -50,56 +41,13 @@ const AddExercise = () => {
           {error}
         </Alert>
       )}
-      <form onSubmit={handleSubmit}>
-        <TextField
-          fullWidth
-          label="Exercise Name"
-          name="name"
-          value={formData.name}
-          onChange={handleChange}
-          margin="normal"
-          required
-        />
-        <TextField
-          fullWidth
-          label="Description"
-          name="description"
-          value={formData.description}
-          onChange={handleChange}
-          margin="normal"
-          multiline
-          rows={4}
-          required
-        />
-        <TextField
-          fullWidth
-          select
-          label="Muscle Group"
-          name="muscleGroup"
-          value={formData.muscleGroup}
-          onChange={handleChange}
-          margin="normal"
-          required
-        >
-          {muscleGroups.map((group) => (
-            <MenuItem key={group} value={group}>
-              {group}
-            </MenuItem>
-          ))}
-        </TextField>
-        <Box sx={{ mt: 3 }}>
-          <Button type="submit" variant="contained" color="primary">
-            Add Exercise
-          </Button>
-          <Button 
-            variant="outlined" 
-            onClick={() => navigate('/exercises')} 
-            sx={{ ml: 2 }}
-          >
-            Cancel
-          </Button>
-        </Box>
-      </form>
+      <ExerciseForm
+        formData={formData}
+        onSubmit={handleSubmit}
+        onChange={handleChange}
+        onCancel={() => navigate('/exercises')}
+        submitButtonText="Add Exercise"
+      />
     </Box>
   );
 };

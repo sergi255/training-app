@@ -1,7 +1,8 @@
 import { useState, useEffect } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
-import { Box, Button, TextField, Typography, MenuItem, Alert, CircularProgress } from '@mui/material';
+import { Box, Typography, Alert, CircularProgress } from '@mui/material';
 import { updateExercise, getSingleExercise } from '../../hooks/useExercises';
+import ExerciseForm from '../../components/ExerciseForm';
 
 const UpdateExercise = () => {
   const { id } = useParams();
@@ -13,16 +14,6 @@ const UpdateExercise = () => {
     description: '',
     muscleGroup: '',
   });
-
-  const muscleGroups = [
-    'Chest',
-    'Back',
-    'Legs',
-    'Shoulders',
-    'Arms',
-    'Core',
-    'Full Body'
-  ];
 
   useEffect(() => {
     const fetchExercise = async () => {
@@ -73,56 +64,13 @@ const UpdateExercise = () => {
           {error}
         </Alert>
       )}
-      <form onSubmit={handleSubmit}>
-        <TextField
-          fullWidth
-          label="Exercise Name"
-          name="name"
-          value={formData.name}
-          onChange={handleChange}
-          margin="normal"
-          required
-        />
-        <TextField
-          fullWidth
-          label="Description"
-          name="description"
-          value={formData.description}
-          onChange={handleChange}
-          margin="normal"
-          multiline
-          rows={4}
-          required
-        />
-        <TextField
-          fullWidth
-          select
-          label="Muscle Group"
-          name="muscleGroup"
-          value={formData.muscleGroup}
-          onChange={handleChange}
-          margin="normal"
-          required
-        >
-          {muscleGroups.map((group) => (
-            <MenuItem key={group} value={group}>
-              {group}
-            </MenuItem>
-          ))}
-        </TextField>
-        <Box sx={{ mt: 3 }}>
-          <Button type="submit" variant="contained" color="primary">
-            Update Exercise
-          </Button>
-          <Button 
-            variant="outlined" 
-            onClick={() => navigate('/exercises')} 
-            sx={{ ml: 2 }}
-          >
-            Cancel
-          </Button>
-        </Box>
-      </form>
+      <ExerciseForm
+        formData={formData}
+        onSubmit={handleSubmit}
+        onChange={handleChange}
+        onCancel={() => navigate('/exercises')}
+        submitButtonText="Update Exercise"
+      />
     </Box>
   );
 };

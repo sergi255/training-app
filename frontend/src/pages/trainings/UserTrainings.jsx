@@ -1,78 +1,11 @@
-import { useState, useEffect } from 'react'
 import { useAuth } from '../../context/AuthContext'
+import { useUserTrainings } from '../../hooks/useUserTrainings'
 import { Container, Typography, Paper, Table, TableBody, TableCell, 
          TableContainer, TableHead, TableRow, CircularProgress } from '@mui/material'
 
 const Trainings = () => {
-  const [trainings, setTrainings] = useState([])
-  const [exercises, setExercises] = useState({})
-  const [isLoading, setIsLoading] = useState(true)
-  const [error, setError] = useState(null)
-  const { logout, username } = useAuth()
-
-  useEffect(() => {
-    const fetchTrainings = async () => {
-      try {
-        const token = localStorage.getItem('token')
-        const response = await fetch('http://localhost:8080/api/trainings', {
-          headers: {
-            'Authorization': `Bearer ${token}`
-          }
-        })
-
-        if (!response.ok) {
-          if (response.status === 401) {
-            logout()
-            return
-          }
-          throw new Error('Failed to fetch trainings')
-        }
-
-        const data = await response.json()
-        setTrainings(data)
-      } catch (err) {
-        setError(err.message)
-      } finally {
-        setIsLoading(false)
-      }
-    }
-
-    fetchTrainings()
-  }, [logout])
-
-  useEffect(() => {
-    const fetchExercises = async () => {
-      try {
-        const token = localStorage.getItem('token')
-        const response = await fetch('http://localhost:8080/api/exercises/all', {
-          headers: {
-            'Authorization': `Bearer ${token}`
-          }
-        })
-
-        if (response.ok) {
-          const exerciseData = await response.json()
-          // Convert array to object with id as key for easier lookup
-          const exercisesMap = exerciseData.reduce((acc, exercise) => {
-            acc[exercise.id] = exercise
-            return acc
-          }, {})
-          setExercises(exercisesMap)
-        }
-      } catch (error) {
-        console.error('Failed to fetch exercises:', error)
-      }
-    }
-
-    fetchExercises()
-  }, [])
-
-  const renderExercises = (trainingExercises) => {
-    return trainingExercises.map(ex => {
-      const exercise = exercises[ex.exerciseId]
-      return exercise ? `${exercise.name} (${ex.sets}x${ex.reps})` : `Unknown Exercise (${ex.sets}x${ex.reps})`
-    }).join(', ')
-  }
+  const { username } = useAuth()
+  const { trainings, isLoading, error, renderExercises } = useUserTrainings()
 
   if (isLoading) {
     return (

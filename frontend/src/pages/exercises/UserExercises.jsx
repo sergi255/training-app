@@ -1,43 +1,11 @@
-import { useState, useEffect } from 'react'
 import { useAuth } from '../../context/AuthContext'
+import { useUserExercises } from '../../hooks/useUserExercises'
 import { Container, Typography, Paper, Table, TableBody, TableCell, 
          TableContainer, TableHead, TableRow, CircularProgress } from '@mui/material'
 
 const Exercises = () => {
-  const [exercises, setExercises] = useState([])
-  const [isLoading, setIsLoading] = useState(true)
-  const [error, setError] = useState(null)
-  const { logout, username } = useAuth()
-
-  useEffect(() => {
-    const fetchExercises = async () => {
-      try {
-        const token = localStorage.getItem('token')
-        const response = await fetch('http://localhost:8080/api/exercises', {
-          headers: {
-            'Authorization': `Bearer ${token}`
-          }
-        })
-
-        if (!response.ok) {
-          if (response.status === 401) {
-            logout()
-            return
-          }
-          throw new Error('Failed to fetch exercises')
-        }
-
-        const data = await response.json()
-        setExercises(data)
-      } catch (err) {
-        setError(err.message)
-      } finally {
-        setIsLoading(false)
-      }
-    }
-
-    fetchExercises()
-  }, [logout])
+  const { username } = useAuth()
+  const { exercises, isLoading, error } = useUserExercises()
 
   if (isLoading) {
     return (
@@ -60,7 +28,7 @@ const Exercises = () => {
   return (
     <Container sx={{ mt: 4 }}>
       <Typography variant="h4" gutterBottom>
-      {username}&apos;s Exercises
+        {username}&apos;s Exercises
       </Typography>
       <TableContainer component={Paper}>
         <Table>

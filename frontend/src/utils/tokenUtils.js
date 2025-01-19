@@ -20,3 +20,8 @@ export const isTokenValid = (token) => {
   if (!parsed || !parsed.exp) return false
   return parsed.exp * 1000 > Date.now()
 }
+
+export const getRolesFromToken = (token) => {
+  const parsedToken = parseToken(token)
+  return parsedToken ? parsedToken.roles : []
+}

@@ -12,6 +12,7 @@ import AddExercise from './pages/exercises/addExercise'
 import UpdateExercise from './pages/exercises/updateExercise'
 import AddTraining from './pages/trainings/AddTraining'
 import UpdateTraining from './pages/trainings/updateTraining'
+import Admin from './pages/admin/Users'
 
 import './App.css'
 
@@ -23,6 +24,7 @@ function App() {
         <Routes>
           <Route path="/" element={<Home />} />
           <Route path="/login" element={<Login />} />
+          <Route path="/admin" element={<Admin />} />
           <Route path="/register" element={<Register />} />
           <Route path="/trainings/all" element={<Trainings />} />
           <Route path="/trainings" element={<UserTrainings />} />

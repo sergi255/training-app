@@ -3,6 +3,7 @@ package sergi.service;
 import sergi.dto.TrainingDto;
 import sergi.entity.Exercise;
 import sergi.entity.Training;
+import sergi.entity.TrainingExercise;
 import sergi.entity.User;
 import sergi.repository.ExerciseRepository;
 import sergi.repository.TrainingRepository;
@@ -36,9 +37,19 @@ public class TrainingService {
         training.setDate(trainingDto.getDate());
         training.setUser(securityUtils.getCurrentUser());
 
-        Set<Exercise> exercises = new HashSet<>(exerciseRepository.findAllById(trainingDto.getExerciseIds()));
-        training.setExercises(exercises);
+        Set<TrainingExercise> trainingExercises = trainingDto.getExercises().stream()
+                .map(exerciseRequest -> {
+                    TrainingExercise te = new TrainingExercise();
+                    te.setTraining(training);
+                    te.setExercise(exerciseRepository.findById(exerciseRequest.getExerciseId())
+                            .orElseThrow(() -> new RuntimeException("Exercise not found")));
+                    te.setSets(exerciseRequest.getSets());
+                    te.setReps(exerciseRequest.getReps());
+                    return te;
+                })
+                .collect(Collectors.toSet());
 
+        training.setTrainingExercises(trainingExercises);
         Training savedTraining = trainingRepository.save(training);
         return mapToDto(savedTraining);
     }
@@ -54,9 +65,21 @@ public class TrainingService {
         training.setName(trainingDto.getName());
         training.setDate(trainingDto.getDate());
 
-        Set<Exercise> exercises = new HashSet<>(exerciseRepository.findAllById(trainingDto.getExerciseIds()));
-        training.setExercises(exercises);
+        training.getTrainingExercises().clear();
 
+        Set<TrainingExercise> trainingExercises = trainingDto.getExercises().stream()
+                .map(exerciseRequest -> {
+                    TrainingExercise te = new TrainingExercise();
+                    te.setTraining(training);
+                    te.setExercise(exerciseRepository.findById(exerciseRequest.getExerciseId())
+                            .orElseThrow(() -> new RuntimeException("Exercise not found")));
+                    te.setSets(exerciseRequest.getSets());
+                    te.setReps(exerciseRequest.getReps());
+                    return te;
+                })
+                .collect(Collectors.toSet());
+
+        training.setTrainingExercises(trainingExercises);
         Training updatedTraining = trainingRepository.save(training);
         return mapToDto(updatedTraining);
     }
@@ -80,12 +103,12 @@ public class TrainingService {
     }
 
     private TrainingDto mapToDto(Training training) {
-        Set<TrainingDto.ExerciseRequest> exercises = training.getExercises().stream()
-                .map(exercise -> {
-                    TrainingDto.ExerciseRequest request = new TrainingDto.ExerciseRequest();
-                    request.setExerciseId(exercise.getId());
-                    return request;
-                })
+        Set<TrainingDto.ExerciseRequest> exercises = training.getTrainingExercises().stream()
+                .map(te -> TrainingDto.ExerciseRequest.builder()
+                        .exerciseId(te.getExercise().getId())
+                        .sets(te.getSets())
+                        .reps(te.getReps())
+                        .build())
                 .collect(Collectors.toSet());
 
         return TrainingDto.builder()

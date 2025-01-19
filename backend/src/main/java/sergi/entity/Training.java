@@ -5,6 +5,7 @@ import lombok.Getter;
 import lombok.Setter;
 import java.time.LocalDate;
 import java.util.Set;
+import java.util.HashSet;
 
 @Getter
 @Setter
@@ -16,7 +17,7 @@ public class Training {
     private Long id;
 
     private String name;
-    
+
     @Column(name = "date")
     private LocalDate date;
 
@@ -24,13 +25,8 @@ public class Training {
     @JoinColumn(name = "user_id")
     private User user;
 
-    @ManyToMany(fetch = FetchType.LAZY)
-    @JoinTable(
-            name = "training_exercises",
-            joinColumns = @JoinColumn(name = "training_id"),
-            inverseJoinColumns = @JoinColumn(name = "exercise_id")
-    )
-    private Set<Exercise> exercises;
+    @OneToMany(mappedBy = "training", cascade = CascadeType.ALL, orphanRemoval = true)
+    private Set<TrainingExercise> trainingExercises = new HashSet<>();
 
     @Override
     public boolean equals(Object o) {

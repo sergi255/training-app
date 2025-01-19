@@ -17,21 +17,26 @@ import java.util.Collections;
 public class TrainingDto {
     private Long id;
     private String name;
-    private LocalDate date; 
-    
+    private LocalDate date;
+
     @JsonProperty("exercises")
     private Set<ExerciseRequest> exercises;
 
     @Data
+    @NoArgsConstructor
+    @AllArgsConstructor
+    @Builder
     public static class ExerciseRequest {
         private Long exerciseId;
+        private Integer sets;
+        private Integer reps;
     }
 
     public Set<Long> getExerciseIds() {
-        return exercises != null ? 
-            exercises.stream()
-                .map(ExerciseRequest::getExerciseId)
-                .collect(Collectors.toSet()) : 
-            Collections.emptySet();
+        return exercises != null ?
+                exercises.stream()
+                        .map(ExerciseRequest::getExerciseId)
+                        .collect(Collectors.toSet()) :
+                Collections.emptySet();
     }
 }

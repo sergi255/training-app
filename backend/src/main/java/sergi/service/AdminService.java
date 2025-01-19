@@ -6,6 +6,7 @@ import sergi.dto.UserDto;
 import sergi.entity.Exercise;
 import sergi.entity.Training;
 import sergi.entity.User;
+import sergi.entity.TrainingExercise;
 import sergi.repository.ExerciseRepository;
 import sergi.repository.TrainingRepository;
 import sergi.repository.UserRepository;
@@ -16,6 +17,7 @@ import org.springframework.transaction.annotation.Transactional;
 import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
+import java.util.HashSet;
 
 @Service
 @RequiredArgsConstructor
@@ -90,11 +92,20 @@ public class AdminService {
 
         training.setName(trainingDto.getName());
         training.setDate(trainingDto.getDate());
-        Set<Exercise> exercises = exerciseRepository.findAllById(trainingDto.getExerciseIds())
-                .stream()
-                .collect(Collectors.toSet());
-        training.setExercises(exercises);
 
+        Set<TrainingExercise> trainingExercises = new HashSet<>();
+
+        trainingDto.getExercises().forEach(exerciseRequest -> {
+            TrainingExercise te = new TrainingExercise();
+            te.setTraining(training);
+            te.setExercise(exerciseRepository.findById(exerciseRequest.getExerciseId())
+                    .orElseThrow(() -> new RuntimeException("Exercise not found")));
+            te.setSets(exerciseRequest.getSets());
+            te.setReps(exerciseRequest.getReps());
+            trainingExercises.add(te);
+        });
+
+        training.setTrainingExercises(trainingExercises);
         Training updatedTraining = trainingRepository.save(training);
         return mapToTrainingDto(updatedTraining);
     }
@@ -149,12 +160,12 @@ public class AdminService {
     }
 
     private TrainingDto mapToTrainingDto(Training training) {
-        Set<TrainingDto.ExerciseRequest> exercises = training.getExercises().stream()
-                .map(exercise -> {
-                    TrainingDto.ExerciseRequest request = new TrainingDto.ExerciseRequest();
-                    request.setExerciseId(exercise.getId());
-                    return request;
-                })
+        Set<TrainingDto.ExerciseRequest> exercises = training.getTrainingExercises().stream()
+                .map(te -> TrainingDto.ExerciseRequest.builder()
+                        .exerciseId(te.getExercise().getId())
+                        .sets(te.getSets())
+                        .reps(te.getReps())
+                        .build())
                 .collect(Collectors.toSet());
 
         return TrainingDto.builder()

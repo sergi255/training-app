@@ -29,11 +29,9 @@ const Login = () => {
       if (!response.ok) {
         throw new Error(data.message || 'Login failed')
       }
-
       // Store the token
       localStorage.setItem('token', data.token)
-      console.log('Token saved:', data.token) // Add this line to verify token
-      
+
       navigate('/')
     } catch (err) {
       setError(err.message || 'Something went wrong')
@@ -92,7 +90,7 @@ const Login = () => {
           
           <div className="mt-6 text-center">
             <Link to="/register" className="text-indigo-600 hover:text-indigo-500">
-              {/* Don't have an account? Sign up */}
+              Dont have an account? Sign up
             </Link>
           </div>
         </div>

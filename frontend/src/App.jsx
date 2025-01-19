@@ -6,6 +6,8 @@ import Register from './pages/Register'
 import Navbar from './components/Navbar'
 import Trainings from './pages/trainings/Trainings'
 import UserTrainings from './pages/trainings/UserTrainings'
+import Exercises from './pages/exercises/Exercises'
+import UserExercises from './pages/exercises/UserExercises'
 import './App.css'
 
 function App() {
@@ -19,6 +21,8 @@ function App() {
           <Route path="/register" element={<Register />} />
           <Route path="/trainings/all" element={<Trainings />} />
           <Route path="/trainings" element={<UserTrainings />} />
+          <Route path="/exercises/all" element={<Exercises />} />
+          <Route path="/exercises" element={<UserExercises />} />
         </Routes>
       </Router>
     </AuthProvider>

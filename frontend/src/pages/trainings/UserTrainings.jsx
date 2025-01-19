@@ -1,12 +1,34 @@
+import { useState } from 'react'
 import { useAuth } from '../../context/AuthContext'
 import { useUserTrainings } from '../../hooks/useUserTrainings'
-import { Container, Typography, Paper, Table, TableBody, TableCell, 
-         TableContainer, TableHead, TableRow, CircularProgress, Button } from '@mui/material'
+import { 
+  Container, Typography, Paper, Table, TableBody, TableCell, 
+  TableContainer, TableHead, TableRow, CircularProgress, Button,
+  Dialog, DialogTitle, DialogContent, DialogActions, DialogContentText
+} from '@mui/material'
 import { useNavigate } from 'react-router-dom'
+import { useDeleteTraining } from '../../hooks/useTrainings'
+
 const Trainings = () => {
   const { username } = useAuth()
   const { trainings, isLoading, error, renderExercises } = useUserTrainings()
+  const { handleDelete, deleteError } = useDeleteTraining()
   const navigate = useNavigate()
+  const [deleteDialogOpen, setDeleteDialogOpen] = useState(false)
+  const [trainingToDelete, setTrainingToDelete] = useState(null)
+
+  const handleDeleteClick = (training) => {
+    setTrainingToDelete(training)
+    setDeleteDialogOpen(true)
+  }
+
+  const handleDeleteConfirm = async () => {
+    await handleDelete(trainingToDelete.id)
+    setDeleteDialogOpen(false)
+    setTrainingToDelete(null)
+  };
+
+  
   if (isLoading) {
     return (
       <Container sx={{ display: 'flex', justifyContent: 'center', mt: 4 }}>
@@ -30,6 +52,11 @@ const Trainings = () => {
       <Typography variant="h4" gutterBottom>
         {username}&apos;s Trainings
       </Typography>
+      {deleteError && (
+        <Typography color="error" sx={{ mb: 2 }}>
+          {deleteError}
+        </Typography>
+      )}
       <TableContainer component={Paper}>
         <Table>
           <TableHead>
@@ -59,12 +86,39 @@ const Trainings = () => {
                   >
                     Update
                   </Button>
+                  <Button 
+                    variant="contained" 
+                    color="error"
+                    onClick={() => handleDeleteClick(training)}
+                  >
+                    Delete
+                  </Button>
                 </TableCell>
               </TableRow>
             ))}
           </TableBody>
         </Table>
       </TableContainer>
+
+      <Dialog
+        open={deleteDialogOpen}
+        onClose={() => setDeleteDialogOpen(false)}
+      >
+        <DialogTitle>Delete Training</DialogTitle>
+        <DialogContent>
+          <DialogContentText>
+            Are you sure you want to delete this training?
+          </DialogContentText>
+        </DialogContent>
+        <DialogActions>
+          <Button onClick={() => setDeleteDialogOpen(false)} variant="contained">
+            Cancel
+          </Button>
+          <Button onClick={handleDeleteConfirm} variant="contained" color='error' >
+            Delete
+          </Button>
+        </DialogActions>
+      </Dialog>
     </Container>
   )
 }

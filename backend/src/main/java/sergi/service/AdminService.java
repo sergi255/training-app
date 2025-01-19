@@ -3,6 +3,7 @@ package sergi.service;
 import sergi.dto.ExerciseDto;
 import sergi.dto.TrainingDto;
 import sergi.dto.UserDto;
+import sergi.dto.ExerciseRequest;
 import sergi.entity.Exercise;
 import sergi.entity.Training;
 import sergi.entity.User;
@@ -160,8 +161,8 @@ public class AdminService {
     }
 
     private TrainingDto mapToTrainingDto(Training training) {
-        Set<TrainingDto.ExerciseRequest> exercises = training.getTrainingExercises().stream()
-                .map(te -> TrainingDto.ExerciseRequest.builder()
+        Set<ExerciseRequest> exercises = training.getTrainingExercises().stream()
+                .map(te -> ExerciseRequest.builder()
                         .exerciseId(te.getExercise().getId())
                         .sets(te.getSets())
                         .reps(te.getReps())

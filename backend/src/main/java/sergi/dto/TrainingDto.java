@@ -22,16 +22,6 @@ public class TrainingDto {
     @JsonProperty("exercises")
     private Set<ExerciseRequest> exercises;
 
-    @Data
-    @NoArgsConstructor
-    @AllArgsConstructor
-    @Builder
-    public static class ExerciseRequest {
-        private Long exerciseId;
-        private Integer sets;
-        private Integer reps;
-    }
-
     public Set<Long> getExerciseIds() {
         return exercises != null ?
                 exercises.stream()

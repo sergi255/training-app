@@ -1,43 +1,10 @@
-import { useState, useEffect } from 'react'
-import { useAuth } from '../../context/AuthContext'
+
 import { Container, Typography, Paper, Table, TableBody, TableCell, 
          TableContainer, TableHead, TableRow, CircularProgress } from '@mui/material'
+import { useExercises } from '../../hooks/useExercises'
 
 const Exercises = () => {
-  const [exercises, setExercises] = useState([])
-  const [isLoading, setIsLoading] = useState(true)
-  const [error, setError] = useState(null)
-  const { logout } = useAuth()
-
-  useEffect(() => {
-    const fetchExercises = async () => {
-      try {
-        const token = localStorage.getItem('token')
-        const response = await fetch('http://localhost:8080/api/exercises/all', {
-          headers: {
-            'Authorization': `Bearer ${token}`
-          }
-        })
-
-        if (!response.ok) {
-          if (response.status === 401) {
-            logout()
-            return
-          }
-          throw new Error('Failed to fetch exercises')
-        }
-
-        const data = await response.json()
-        setExercises(data)
-      } catch (err) {
-        setError(err.message)
-      } finally {
-        setIsLoading(false)
-      }
-    }
-
-    fetchExercises()
-  }, [logout])
+  const { exercises, isLoading, error } = useExercises('/api/exercises/all')
 
   if (isLoading) {
     return (

@@ -13,6 +13,7 @@ export const useExercises = (endpoint = '/api/exercises') => {
         const token = localStorage.getItem('token')
         const response = await fetch(`http://localhost:8080${endpoint}`, {
           headers: {
+            'Content-Type': 'application/json',
             'Authorization': `Bearer ${token}`
           }
         })

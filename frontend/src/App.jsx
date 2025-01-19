@@ -8,6 +8,7 @@ import Trainings from './pages/trainings/Trainings'
 import UserTrainings from './pages/trainings/UserTrainings'
 import Exercises from './pages/exercises/Exercises'
 import UserExercises from './pages/exercises/UserExercises'
+import AddExercise from './pages/exercises/addExercise'
 import './App.css'
 
 function App() {
@@ -23,6 +24,7 @@ function App() {
           <Route path="/trainings" element={<UserTrainings />} />
           <Route path="/exercises/all" element={<Exercises />} />
           <Route path="/exercises" element={<UserExercises />} />
+          <Route path="/exercises/add" element={<AddExercise />} />
         </Routes>
       </Router>
     </AuthProvider>

@@ -1,8 +1,10 @@
 import { useState } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
+import { useAuth } from '../context/AuthContext'
 
 const Login = () => {
   const navigate = useNavigate()
+  const { login } = useAuth()
   const [formData, setFormData] = useState({
     username: '',
     password: ''
@@ -29,9 +31,8 @@ const Login = () => {
       if (!response.ok) {
         throw new Error(data.message || 'Login failed')
       }
-      // Store the token
-      localStorage.setItem('token', data.token)
 
+      login(data.token)
       navigate('/')
     } catch (err) {
       setError(err.message || 'Something went wrong')

@@ -28,6 +28,27 @@ public class Training {
     @OneToMany(mappedBy = "training", cascade = CascadeType.ALL, orphanRemoval = true)
     private Set<TrainingExercise> trainingExercises = new HashSet<>();
 
+    public void addTrainingExercise(TrainingExercise exercise) {
+        trainingExercises.add(exercise);
+        exercise.setTraining(this);
+    }
+
+    public void removeTrainingExercise(TrainingExercise exercise) {
+        trainingExercises.remove(exercise);
+        exercise.setTraining(null);
+    }
+
+    public void setTrainingExercises(Set<TrainingExercise> exercises) {
+        // Clear existing exercises
+        trainingExercises.forEach(exercise -> exercise.setTraining(null));
+        trainingExercises.clear();
+        
+        // Add new exercises
+        if (exercises != null) {
+            exercises.forEach(this::addTrainingExercise);
+        }
+    }
+
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;

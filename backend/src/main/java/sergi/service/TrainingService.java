@@ -66,12 +66,9 @@ public class TrainingService {
         training.setName(trainingDto.getName());
         training.setDate(trainingDto.getDate());
 
-        training.getTrainingExercises().clear();
-
-        Set<TrainingExercise> trainingExercises = trainingDto.getExercises().stream()
+        Set<TrainingExercise> newExercises = trainingDto.getExercises().stream()
                 .map(exerciseRequest -> {
                     TrainingExercise te = new TrainingExercise();
-                    te.setTraining(training);
                     te.setExercise(exerciseRepository.findById(exerciseRequest.getExerciseId())
                             .orElseThrow(() -> new RuntimeException("Exercise not found")));
                     te.setSets(exerciseRequest.getSets());
@@ -80,9 +77,9 @@ public class TrainingService {
                 })
                 .collect(Collectors.toSet());
 
-        training.setTrainingExercises(trainingExercises);
-        Training updatedTraining = trainingRepository.save(training);
-        return mapToDto(updatedTraining);
+        // Use the entity's method to handle the relationship
+        training.setTrainingExercises(newExercises);
+        return mapToDto(trainingRepository.save(training));
     }
 
     public void deleteTraining(Long id) {

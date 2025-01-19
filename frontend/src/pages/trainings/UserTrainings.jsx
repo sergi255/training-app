@@ -1,6 +1,6 @@
 import { useState } from 'react'
 import { useAuth } from '../../context/AuthContext'
-import { useUserTrainings } from '../../hooks/useUserTrainings'
+import { useUserTrainings } from '../../hooks/useTrainings'
 import { 
   Container, Typography, Paper, Table, TableBody, TableCell, 
   TableContainer, TableHead, TableRow, CircularProgress, Button,

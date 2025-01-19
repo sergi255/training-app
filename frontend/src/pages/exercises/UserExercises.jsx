@@ -1,6 +1,6 @@
 import { useState } from 'react'
 import { useAuth } from '../../context/AuthContext'
-import { useUserExercises } from '../../hooks/useUserExercises'
+import { useUserExercises } from '../../hooks/useExercises'
 import { useNavigate } from 'react-router-dom'
 import { useDeleteExercise } from '../../hooks/useExercises'
 import { 

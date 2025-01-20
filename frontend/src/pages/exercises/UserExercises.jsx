@@ -6,7 +6,7 @@ import { useDeleteExercise } from '../../services/exercises'
 import { 
   Container, Typography, Paper, Table, TableBody, TableCell, 
   TableContainer, TableHead, TableRow, CircularProgress, Button,
-  Dialog, DialogTitle, DialogContent, DialogActions, DialogContentText
+  Dialog, DialogTitle, DialogContent, DialogActions, DialogContentText, Alert
 } from '@mui/material'
 
 const Exercises = () => {
@@ -39,9 +39,19 @@ const Exercises = () => {
   if (error) {
     return (
       <Container>
-        <Typography color="error" sx={{ mt: 4 }}>
+        <Alert 
+          severity="error" 
+          sx={{ mt: 4 }}
+          action={
+            error.includes('Unauthorized') ? (
+              <Button color="inherit" size="small" onClick={() => window.location.reload()}>
+                Refresh
+              </Button>
+            ) : null
+          }
+        >
           {error}
-        </Typography>
+        </Alert>
       </Container>
     )
   }

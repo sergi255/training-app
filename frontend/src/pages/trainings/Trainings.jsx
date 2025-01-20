@@ -1,10 +1,10 @@
 import { Container, Typography, Paper, Table, TableBody, TableCell, 
-         TableContainer, TableHead, TableRow, CircularProgress } from '@mui/material'
+         TableContainer, TableHead, TableRow, CircularProgress, Alert, Button } from '@mui/material'
 import { useTrainings } from '../../services/trainings'
 import { useExercises } from '../../services/exercises'
 
 const Trainings = () => {
-  const { trainings, isLoading: trainingsLoading, error: trainingsError } = useTrainings('/api/trainings/all')
+  const { trainings, isLoading: trainingsLoading, error } = useTrainings('/api/trainings/all')
   const { exercises, isLoading: exercisesLoading } = useExercises('/api/exercises/all')
 
   if (trainingsLoading || exercisesLoading) {
@@ -22,12 +22,22 @@ const Trainings = () => {
     }).join(', ')
   }
 
-  if (trainingsError) {
+  if (error) {
     return (
       <Container>
-        <Typography color="error" sx={{ mt: 4 }}>
-          {trainingsError}
-        </Typography>
+        <Alert 
+          severity="error" 
+          sx={{ mt: 4 }}
+          action={
+            error.includes('Unauthorized') ? (
+              <Button color="inherit" size="small" onClick={() => window.location.reload()}>
+                Refresh
+              </Button>
+            ) : null
+          }
+        >
+          {error}
+        </Alert>
       </Container>
     )
   }

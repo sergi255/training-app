@@ -27,7 +27,7 @@ const UpdateTraining = () => {
   const navigate = useNavigate();
   const { logout } = useAuth();
   const [loading, setLoading] = useState(true);
-  const [setSubmitting] = useState(false);  // Add this line
+  const [submitting, setSubmitting] = useState(false);  // Add this line
   const [formData, setFormData] = useState({
     name: '',
     date: dayjs(),

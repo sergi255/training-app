@@ -9,6 +9,9 @@ import sergi.entity.User;
 import sergi.repository.ExerciseRepository;
 import sergi.repository.TrainingRepository;
 import sergi.security.SecurityUtils;
+import sergi.exceptions.ExerciseNotFoundException;
+import sergi.exceptions.TrainingNotFoundException;
+import sergi.exceptions.UnauthorizedAccessException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
@@ -43,7 +46,7 @@ public class TrainingService {
                     TrainingExercise te = new TrainingExercise();
                     te.setTraining(training);
                     te.setExercise(exerciseRepository.findById(exerciseRequest.getExerciseId())
-                            .orElseThrow(() -> new RuntimeException("Exercise not found")));
+                            .orElseThrow(() -> new ExerciseNotFoundException("Exercise not found")));
                     te.setSets(exerciseRequest.getSets());
                     te.setReps(exerciseRequest.getReps());
                     return te;
@@ -57,10 +60,10 @@ public class TrainingService {
 
     public TrainingDto updateTraining(Long id, TrainingDto trainingDto) {
         Training training = trainingRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException("Training not found"));
+                .orElseThrow(() -> new TrainingNotFoundException("Training with id " + id + " not found"));
 
         if (!training.getUser().getId().equals(securityUtils.getCurrentUser().getId())) {
-            throw new RuntimeException("Not authorized to update this training");
+            throw new UnauthorizedAccessException("Not authorized to update this training");
         }
 
         training.setName(trainingDto.getName());
@@ -70,7 +73,7 @@ public class TrainingService {
                 .map(exerciseRequest -> {
                     TrainingExercise te = new TrainingExercise();
                     te.setExercise(exerciseRepository.findById(exerciseRequest.getExerciseId())
-                            .orElseThrow(() -> new RuntimeException("Exercise not found")));
+                            .orElseThrow(() -> new ExerciseNotFoundException("Exercise not found")));
                     te.setSets(exerciseRequest.getSets());
                     te.setReps(exerciseRequest.getReps());
                     return te;
@@ -84,10 +87,10 @@ public class TrainingService {
 
     public void deleteTraining(Long id) {
         Training training = trainingRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException("Training not found"));
+                .orElseThrow(() -> new TrainingNotFoundException("Training with id " + id + " not found"));
 
         if (!training.getUser().getId().equals(securityUtils.getCurrentUser().getId())) {
-            throw new RuntimeException("Not authorized to delete this training");
+            throw new UnauthorizedAccessException("Not authorized to delete this training");
         }
 
         trainingRepository.delete(training);
@@ -119,7 +122,7 @@ public class TrainingService {
 
     public TrainingDto getTraining(Long id) {
         Training training = trainingRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException("Training not found"));
+                .orElseThrow(() -> new TrainingNotFoundException("Training with id " + id + " not found"));
 
         return mapToDto(training);
     }

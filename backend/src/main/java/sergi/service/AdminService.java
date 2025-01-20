@@ -20,6 +20,10 @@ import java.util.Set;
 import java.util.stream.Collectors;
 import java.util.HashSet;
 
+import sergi.exceptions.ExerciseNotFoundException;
+import sergi.exceptions.TrainingNotFoundException;
+import sergi.exceptions.UnauthorizedAccessException;
+
 @Service
 @RequiredArgsConstructor
 public class AdminService {
@@ -68,10 +72,10 @@ public class AdminService {
     public ExerciseDto updateUserExercise(Long userId, Long exerciseId, ExerciseDto exerciseDto) {
         validateUserExists(userId);
         Exercise exercise = exerciseRepository.findById(exerciseId)
-                .orElseThrow(() -> new RuntimeException("Exercise not found"));
+                .orElseThrow(() -> new ExerciseNotFoundException("Exercise with id " + exerciseId + " not found"));
 
         if (!exercise.getUser().getId().equals(userId)) {
-            throw new RuntimeException("Exercise doesn't belong to specified user");
+            throw new UnauthorizedAccessException("Exercise doesn't belong to specified user");
         }
 
         exercise.setName(exerciseDto.getName());
@@ -85,10 +89,10 @@ public class AdminService {
     public TrainingDto updateUserTraining(Long userId, Long trainingId, TrainingDto trainingDto) {
         validateUserExists(userId);
         Training training = trainingRepository.findById(trainingId)
-                .orElseThrow(() -> new RuntimeException("Training not found"));
+                .orElseThrow(() -> new TrainingNotFoundException("Training with id " + trainingId + " not found"));
 
         if (!training.getUser().getId().equals(userId)) {
-            throw new RuntimeException("Training doesn't belong to specified user");
+            throw new UnauthorizedAccessException("Training doesn't belong to specified user");
         }
 
         training.setName(trainingDto.getName());
@@ -139,7 +143,7 @@ public class AdminService {
 
     private void validateUserExists(Long userId) {
         if (!userRepository.existsById(userId)) {
-            throw new RuntimeException("User not found");
+            throw new UnauthorizedAccessException("User with id " + userId + " not found");
         }
     }
 

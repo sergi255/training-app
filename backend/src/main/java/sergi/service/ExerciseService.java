@@ -3,6 +3,8 @@ package sergi.service;
 import sergi.dto.ExerciseDto;
 import sergi.entity.Exercise;
 import sergi.entity.User;
+import sergi.exceptions.ExerciseNotFoundException;
+import sergi.exceptions.UnauthorizedAccessException;
 import sergi.repository.ExerciseRepository;
 import sergi.security.SecurityUtils;
 import lombok.RequiredArgsConstructor;
@@ -38,10 +40,10 @@ public class ExerciseService {
 
     public ExerciseDto updateExercise(Long id, ExerciseDto exerciseDto) {
         Exercise exercise = exerciseRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException("Exercise not found"));
+                .orElseThrow(() -> new ExerciseNotFoundException("Exercise with id " + id + " not found"));
 
         if (!exercise.getUser().getId().equals(securityUtils.getCurrentUser().getId())) {
-            throw new RuntimeException("Not authorized to update this exercise");
+            throw new UnauthorizedAccessException("Not authorized to update this exercise");
         }
 
         exercise.setName(exerciseDto.getName());
@@ -54,10 +56,10 @@ public class ExerciseService {
 
     public void deleteExercise(Long id) {
         Exercise exercise = exerciseRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException("Exercise not found"));
+                .orElseThrow(() -> new ExerciseNotFoundException("Exercise with id " + id + " not found"));
 
         if (!exercise.getUser().getId().equals(securityUtils.getCurrentUser().getId())) {
-            throw new RuntimeException("Not authorized to delete this exercise");
+            throw new UnauthorizedAccessException("Not authorized to delete this exercise");
         }
 
         exerciseRepository.delete(exercise);
@@ -86,7 +88,7 @@ public class ExerciseService {
 
     public ExerciseDto getExercise(Long id) {
         Exercise exercise = exerciseRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException("Exercise not found"));
+                .orElseThrow(() -> new ExerciseNotFoundException("Exercise with id " + id + " not found"));
 
         return mapToDto(exercise);
     }

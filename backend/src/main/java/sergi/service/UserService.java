@@ -5,6 +5,7 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import sergi.entity.User;
 import sergi.repository.UserRepository;
+import sergi.exceptions.UnauthorizedAccessException;
 
 @Service
 public class UserService {
@@ -23,6 +24,6 @@ public class UserService {
 
     public User findByUsername(String username) {
         return userRepository.findByUsername(username)
-                .orElseThrow(() -> new RuntimeException("User not found"));
+                .orElseThrow(() -> new UnauthorizedAccessException("User not found"));
     }
 }

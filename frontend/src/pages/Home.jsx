@@ -19,17 +19,24 @@ const Home = () => {
                     <p className="text-gray-600">Manage your application settings and users.</p>
                     <div className="pt-6 flex gap-4">
                       <Link
-                        to="/admin"
+                        to="/admin/users"
                         className="bg-indigo-600 text-white px-4 py-2 rounded-md hover:bg-indigo-700 transition-colors"
                       >
-                        Go to Admin Panel
+                        Manage Users
                       </Link>
-                      <button
-                        onClick={logout}
-                        className="bg-gray-600 text-white px-4 py-2 rounded-md hover:bg-gray-700 transition-colors"
+                      <Link
+                        to="/admin/trainings"
+                        className="bg-indigo-600 text-white px-4 py-2 rounded-md hover:bg-indigo-700 transition-colors"
                       >
-                        Logout
-                      </button>
+                        Manage Trainings
+                      </Link>
+                      <Link
+                        to="/admin/exercises"
+                        className="bg-indigo-600 text-white px-4 py-2 rounded-md hover:bg-indigo-700 transition-colors"
+                      >
+                        Manage Exercises
+                      </Link>
+
                     </div>
                   </div>
                 ) : (

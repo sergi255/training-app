@@ -1,34 +1,129 @@
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { useAuth } from '../../context/AuthContext'
-import { useUserTrainings, useDeleteTraining } from '../../services/trainings'
-import { 
-  Container, Typography, Paper, Table, TableBody, TableCell, 
-  TableContainer, TableHead, TableRow, CircularProgress, Button,
-  Dialog, DialogTitle, DialogContent, DialogActions, DialogContentText,
-  Alert
-} from '@mui/material'
+import { Container, Typography, Paper, Table, TableBody, TableCell, Alert, Button, Dialog, DialogTitle, DialogContent, DialogActions, DialogContentText,
+         TableContainer, TableHead, TableRow, CircularProgress } from '@mui/material'
 import { useNavigate } from 'react-router-dom'
 
 const Trainings = () => {
-  const { username } = useAuth()
-  const { trainings, isLoading, error, renderExercises } = useUserTrainings()
-  const { handleDelete, deleteError } = useDeleteTraining()
-  const navigate = useNavigate()
+  const [trainings, setTrainings] = useState([])
+  const [exercises, setExercises] = useState({})
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false)
-  const [trainingToDelete, setTrainingToDelete] = useState(null)
+  const [selectedTraining, setSelectedTraining] = useState(null)
+  const [deleteError, setDeleteError] = useState(null)
+  const [isLoading, setIsLoading] = useState(true)
+  const [error, setError] = useState(null)
+  const navigate = useNavigate()
+  const { logout } = useAuth()
+
+  const fetchTrainingsFromAPI = async () => {
+    const token = localStorage.getItem('token')
+    const response = await fetch('http://localhost:8080/api/trainings', {
+      headers: {
+        'Authorization': `Bearer ${token}`
+      }
+    })
+    if (!response.ok) {
+      if (response.status === 401) {
+        logout()
+        return
+      }
+      throw new Error('Failed to fetch trainings')
+    }
+    return await response.json()
+  }
+
+  const fetchExercisesFromAPI = async () => {
+    const token = localStorage.getItem('token')
+    const response = await fetch('http://localhost:8080/api/exercises/all', {
+      headers: {
+        'Authorization': `Bearer ${token}`
+      }
+    })
+    if (!response.ok) {
+      throw new Error('Failed to fetch exercises')
+    }
+    return await response.json()
+  }
+
+  const deleteTrainingFromAPI = async (trainingId) => {
+    const token = localStorage.getItem('token')
+    const response = await fetch(`http://localhost:8080/api/trainings/${trainingId}`, {
+      method: 'DELETE',
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${token}`
+      }
+    })
+    if (!response.ok) {
+      const data = await response.json().catch(() => ({}))
+      throw new Error(data.message || `Failed to delete training (${response.status})`)
+    }
+  }
+
+  const loadTrainings = async () => {
+    try {
+      const data = await fetchTrainingsFromAPI()
+      setTrainings(data)
+    } catch (err) {
+      setError(err.message)
+    } finally {
+      setIsLoading(false)
+    }
+  }
+
+  const loadExercises = async () => {
+    try {
+      const exerciseData = await fetchExercisesFromAPI()
+      const exercisesMap = exerciseData.reduce((acc, exercise) => {
+        acc[exercise.id] = exercise
+        return acc
+      }, {})
+      setExercises(exercisesMap)
+    } catch (error) {
+      console.error('Failed to fetch exercises:', error)
+    }
+  }
+  
+  useEffect(() => {
+    loadTrainings()
+    loadExercises()
+  }, [])
 
   const handleDeleteClick = (training) => {
-    setTrainingToDelete(training)
+    setSelectedTraining(training)
     setDeleteDialogOpen(true)
   }
 
   const handleDeleteConfirm = async () => {
-    await handleDelete(trainingToDelete.id)
-    setDeleteDialogOpen(false)
-    setTrainingToDelete(null)
-  };
+    if (!selectedTraining) return
 
-  
+    try {
+      await deleteTrainingFromAPI(selectedTraining.id)
+      setTrainings(prevTrainings => 
+        prevTrainings.filter(t => t.id !== selectedTraining.id)
+      )
+      setDeleteError(null)
+    } catch (error) {
+      setDeleteError(error.message)
+    } finally {
+      setDeleteDialogOpen(false)
+      setSelectedTraining(null)
+    }
+  }
+
+  const handleCancelDelete = () => {
+    setDeleteDialogOpen(false)
+    setSelectedTraining(null)
+    setDeleteError(null)
+  }
+
+  const renderExercises = (trainingExercises) => {
+    return trainingExercises.map(ex => {
+      const exercise = exercises[ex.exerciseId]
+      return exercise ? `${exercise.name} (${ex.sets}x${ex.reps})` : `Unknown Exercise (${ex.sets}x${ex.reps})`
+    }).join(', ')
+  }
+
   if (isLoading) {
     return (
       <Container sx={{ display: 'flex', justifyContent: 'center', mt: 4 }}>
@@ -45,7 +140,7 @@ const Trainings = () => {
           sx={{ mt: 4 }}
           action={
             error.includes('Unauthorized') ? (
-              <Button color="inherit" size="small" onClick={() => window.location.reload()}>
+              <Button color="inherit" size="small" onClick={loadTrainings}>
                 Refresh
               </Button>
             ) : null
@@ -60,7 +155,7 @@ const Trainings = () => {
   return (
     <Container sx={{ mt: 4 }}>
       <Typography variant="h4" gutterBottom>
-        {username}&apos;s Trainings
+        My Trainings
       </Typography>
       {trainings.length === 0 && (
         <Typography sx={{ mt: 2, textAlign: 'center' }}>
@@ -117,7 +212,7 @@ const Trainings = () => {
 
       <Dialog
         open={deleteDialogOpen}
-        onClose={() => setDeleteDialogOpen(false)}
+        onClose={handleCancelDelete}
       >
         <DialogTitle>Delete Training</DialogTitle>
         <DialogContent>
@@ -126,7 +221,7 @@ const Trainings = () => {
           </DialogContentText>
         </DialogContent>
         <DialogActions>
-          <Button onClick={() => setDeleteDialogOpen(false)} variant="contained">
+          <Button onClick={handleCancelDelete} variant="contained">
             Cancel
           </Button>
           <Button onClick={handleDeleteConfirm} variant="contained" color='error' >

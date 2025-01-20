@@ -1,20 +1,76 @@
+import { useState, useEffect } from 'react'
+import { useAuth } from '../../context/AuthContext'
 import { Container, Typography, Paper, Table, TableBody, TableCell, 
-         TableContainer, TableHead, TableRow, CircularProgress, Alert, Button } from '@mui/material'
-import { useTrainings } from '../../services/trainings'
-import { useExercises } from '../../services/exercises'
+         TableContainer, TableHead, TableRow, CircularProgress } from '@mui/material'
 
 const Trainings = () => {
-  const { trainings, isLoading: trainingsLoading, error } = useTrainings('/api/trainings/all')
-  const { exercises, isLoading: exercisesLoading } = useExercises('/api/exercises/all')
+  const [trainings, setTrainings] = useState([])
+  const [exercises, setExercises] = useState({})
+  const [isLoading, setIsLoading] = useState(true)
+  const [error, setError] = useState(null)
+  const { logout } = useAuth()
 
-  if (trainingsLoading || exercisesLoading) {
-    return (
-      <Container sx={{ display: 'flex', justifyContent: 'center', mt: 4 }}>
-        <CircularProgress />
-      </Container>
-    )
+  const fetchTrainingsFromAPI = async () => {
+    const token = localStorage.getItem('token')
+    const response = await fetch('http://localhost:8080/api/trainings/all', {
+      headers: {
+        'Authorization': `Bearer ${token}`
+      }
+    })
+    if (!response.ok) {
+      if (response.status === 401) {
+        logout()
+        return null
+      }
+      throw new Error('Failed to fetch trainings')
+    }
+    return await response.json()
   }
 
+  const fetchExercisesFromAPI = async () => {
+    const token = localStorage.getItem('token')
+    const response = await fetch('http://localhost:8080/api/exercises/all', {
+      headers: {
+        'Authorization': `Bearer ${token}`
+      }
+    })
+    if (!response.ok) {
+      throw new Error('Failed to fetch exercises')
+    }
+    return await response.json()
+  }
+
+  const loadTrainings = async () => {
+    try {
+      const data = await fetchTrainingsFromAPI()
+      if (data) {
+        setTrainings(data)
+      }
+    } catch (err) {
+      setError(err.message)
+    } finally {
+      setIsLoading(false)
+    }
+  }
+
+  const loadExercises = async () => {
+    try {
+      const exerciseData = await fetchExercisesFromAPI()
+      const exercisesMap = exerciseData.reduce((acc, exercise) => {
+        acc[exercise.id] = exercise
+        return acc
+      }, {})
+      setExercises(exercisesMap)
+    } catch (error) {
+      console.error('Failed to fetch exercises:', error)
+    }
+  }
+
+  useEffect(() => {
+    loadTrainings()
+    loadExercises()
+  }, [])
+  
   const renderExercises = (trainingExercises) => {
     return trainingExercises.map(ex => {
       const exercise = exercises[ex.exerciseId]
@@ -22,22 +78,20 @@ const Trainings = () => {
     }).join(', ')
   }
 
+  if (isLoading) {
+    return (
+      <Container sx={{ display: 'flex', justifyContent: 'center', mt: 4 }}>
+        <CircularProgress />
+      </Container>
+    )
+  }
+
   if (error) {
     return (
       <Container>
-        <Alert 
-          severity="error" 
-          sx={{ mt: 4 }}
-          action={
-            error.includes('Unauthorized') ? (
-              <Button color="inherit" size="small" onClick={() => window.location.reload()}>
-                Refresh
-              </Button>
-            ) : null
-          }
-        >
+        <Typography color="error" sx={{ mt: 4 }}>
           {error}
-        </Alert>
+        </Typography>
       </Container>
     )
   }

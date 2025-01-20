@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import { Box, Typography, Alert, CircularProgress } from '@mui/material';
-import { updateExercise, getSingleExercise } from '../../hooks/useExercises';
+import { updateExercise, getSingleExercise } from '../../services/exercises';
 import ExerciseForm from '../../components/ExerciseForm';
 
 const UpdateExercise = () => {

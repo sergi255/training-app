@@ -1,8 +1,8 @@
 import { useState } from 'react'
 import { useAuth } from '../../context/AuthContext'
-import { useUserExercises } from '../../hooks/useExercises'
+import { useUserExercises } from '../../services/exercises'
 import { useNavigate } from 'react-router-dom'
-import { useDeleteExercise } from '../../hooks/useExercises'
+import { useDeleteExercise } from '../../services/exercises'
 import { 
   Container, Typography, Paper, Table, TableBody, TableCell, 
   TableContainer, TableHead, TableRow, CircularProgress, Button,

@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Box, Typography, Alert } from '@mui/material';
-import { addExercise } from '../../hooks/useExercises';
+import { addExercise } from '../../services/exercises';
 import ExerciseForm from '../../components/ExerciseForm';
 
 const AddExercise = () => {

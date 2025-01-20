@@ -1,7 +1,7 @@
 import { Container, Box, Typography } from '@mui/material';
 import { useNavigate } from 'react-router-dom';
 import dayjs from 'dayjs';
-import { useTrainings } from '../../hooks/useTrainings';
+import { useTrainings } from '../../services/trainings';
 import TrainingForm from '../../components/TrainingForm';
 
 const AddTraining = () => {

@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { Box, Typography, Container, Alert, CircularProgress } from '@mui/material';
 import dayjs from 'dayjs';
-import { useTrainings } from '../../hooks/useTrainings';
+import { useTrainings } from '../../services/trainings';
 import TrainingForm from '../../components/TrainingForm';
 
 const UpdateTraining = () => {

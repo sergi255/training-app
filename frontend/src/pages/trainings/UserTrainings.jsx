@@ -1,13 +1,12 @@
 import { useState } from 'react'
 import { useAuth } from '../../context/AuthContext'
-import { useUserTrainings } from '../../hooks/useTrainings'
+import { useUserTrainings, useDeleteTraining } from '../../services/trainings'
 import { 
   Container, Typography, Paper, Table, TableBody, TableCell, 
   TableContainer, TableHead, TableRow, CircularProgress, Button,
   Dialog, DialogTitle, DialogContent, DialogActions, DialogContentText
 } from '@mui/material'
 import { useNavigate } from 'react-router-dom'
-import { useDeleteTraining } from '../../hooks/useTrainings'
 
 const Trainings = () => {
   const { username } = useAuth()

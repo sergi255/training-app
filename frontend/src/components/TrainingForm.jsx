@@ -15,7 +15,7 @@ import DeleteIcon from '@mui/icons-material/Delete';
 import { DatePicker } from '@mui/x-date-pickers';
 import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
 import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider';
-import { useTrainings } from '../hooks/useTrainings';
+import { useTrainings } from '../services/trainings';
 import PropTypes from 'prop-types';
 
 const TrainingForm = ({ initialData, onSubmit, submitButtonText = 'Submit' }) => {

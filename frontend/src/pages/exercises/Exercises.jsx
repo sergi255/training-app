@@ -1,7 +1,7 @@
 
 import { Container, Typography, Paper, Table, TableBody, TableCell, 
          TableContainer, TableHead, TableRow, CircularProgress } from '@mui/material'
-import { useExercises } from '../../hooks/useExercises'
+import { useExercises } from '../../services/exercises'
 
 const Exercises = () => {
   const { exercises, isLoading, error } = useExercises('/api/exercises/all')

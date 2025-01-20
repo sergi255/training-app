@@ -1,6 +1,28 @@
 import { useState, useEffect } from 'react'
 import { useAuth } from '../context/AuthContext'
 
+const handleApiError = (response) => {
+  if (!response.ok) {
+    switch (response.status) {
+      case 400:
+        throw new Error('Invalid request data');
+      case 401:
+        throw new Error('Unauthorized - Please login again');
+      case 403:
+        throw new Error('Access forbidden - You don\'t have permission');
+      case 404:
+        throw new Error('Resource not found');
+      case 429:
+        throw new Error('Too many requests - Please try again later');
+      case 500:
+        throw new Error('Server error - Please try again later');
+      default:
+        throw new Error('An unexpected error occurred');
+    }
+  }
+  return response;
+};
+
 export const useExercises = (endpoint = '/api/exercises') => {
   const [exercises, setExercises] = useState([])
   const [isLoading, setIsLoading] = useState(true)
@@ -18,18 +40,14 @@ export const useExercises = (endpoint = '/api/exercises') => {
           }
         })
 
-        if (!response.ok) {
-          if (response.status === 401) {
-            logout()
-            return
-          }
-          throw new Error('Failed to fetch exercises')
-        }
-
+        handleApiError(response);
         const data = await response.json()
         setExercises(data)
       } catch (err) {
         setError(err.message)
+        if (err.message.includes('Unauthorized')) {
+          logout()
+        }
       } finally {
         setIsLoading(false)
       }
@@ -78,17 +96,15 @@ export const addExercise = async (formData, endpoint = '/api/exercises') => {
       body: JSON.stringify(formData)
     });
 
-    if (!response.ok) {
-      if (response.status === 401) {
-        throw new Error('Unauthorized');
-      }
-      throw new Error('Failed to add exercise');
-    }
-
+    handleApiError(response);
     const data = await response.json();
     return { success: true, data };
   } catch (error) {
-    return { success: false, error: error.message };
+    return { 
+      success: false, 
+      error: error.message,
+      isAuthError: error.message.includes('Unauthorized')
+    };
   }
 };
 
@@ -101,13 +117,7 @@ export const deleteExercise = async (id) => {
       }
     });
 
-    if (!response.ok) {
-      if (response.status === 401) {
-        throw new Error('Unauthorized');
-      }
-      throw new Error('Failed to delete exercise');
-    }
-
+    handleApiError(response);
     return { success: true };
   } catch (error) {
     return { success: false, error: error.message };
@@ -125,13 +135,7 @@ export const updateExercise = async (id, formData) => {
       body: JSON.stringify(formData)
     });
 
-    if (!response.ok) {
-      if (response.status === 401) {
-        throw new Error('Unauthorized');
-      }
-      throw new Error('Failed to update exercise');
-    }
-
+    handleApiError(response);
     return { success: true };
   } catch (error) {
     return { success: false, error: error.message };
@@ -146,13 +150,7 @@ export const getSingleExercise = async (id) => {
       }
     });
 
-    if (!response.ok) {
-      if (response.status === 401) {
-        throw new Error('Unauthorized');
-      }
-      throw new Error('Failed to fetch exercise');
-    }
-
+    handleApiError(response);
     const data = await response.json();
     return { success: true, data };
   } catch (error) {
@@ -176,18 +174,14 @@ export const useUserExercises = () => {
             }
           })
   
-          if (!response.ok) {
-            if (response.status === 401) {
-              logout()
-              return
-            }
-            throw new Error('Failed to fetch exercises')
-          }
-  
+          handleApiError(response);
           const data = await response.json()
           setExercises(data)
         } catch (err) {
           setError(err.message)
+          if (err.message.includes('Unauthorized')) {
+            logout()
+          }
         } finally {
           setIsLoading(false)
         }

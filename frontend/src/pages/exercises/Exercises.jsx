@@ -1,6 +1,5 @@
-
 import { Container, Typography, Paper, Table, TableBody, TableCell, 
-         TableContainer, TableHead, TableRow, CircularProgress } from '@mui/material'
+         TableContainer, TableHead, TableRow, CircularProgress, Alert, Button } from '@mui/material'
 import { useExercises } from '../../services/exercises'
 
 const Exercises = () => {
@@ -17,9 +16,19 @@ const Exercises = () => {
   if (error) {
     return (
       <Container>
-        <Typography color="error" sx={{ mt: 4 }}>
+        <Alert 
+          severity="error" 
+          sx={{ mt: 4 }}
+          action={
+            error.includes('Unauthorized') && (
+              <Button color="inherit" size="small" onClick={() => window.location.reload()}>
+                Refresh
+              </Button>
+            )
+          }
+        >
           {error}
-        </Typography>
+        </Alert>
       </Container>
     )
   }
@@ -49,6 +58,11 @@ const Exercises = () => {
           </TableBody>
         </Table>
       </TableContainer>
+      {exercises.length === 0 && (
+        <Typography sx={{ mt: 2, textAlign: 'center' }}>
+          No exercises found.
+        </Typography>
+      )}
     </Container>
   )
 }

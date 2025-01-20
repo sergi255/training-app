@@ -80,7 +80,7 @@ const UpdateTraining = () => {
 
   const fetchExercises = async () => {
     try {
-      const response = await fetch(`http://localhost:8080/api/exercises`, {
+      const response = await fetch(`http://localhost:8080/api/admin/exercises/all`, {
         headers: {
           'Authorization': `Bearer ${localStorage.getItem('token')}`,
           'Content-Type': 'application/json',
@@ -150,6 +150,16 @@ const UpdateTraining = () => {
     e.preventDefault();
     setIsLoading(true);
     
+    // Check for duplicate exercises
+    const exerciseIds = formData.exercises.map(ex => ex.exerciseId);
+    const hasDuplicates = exerciseIds.length !== new Set(exerciseIds).size;
+    
+    if (hasDuplicates) {
+      setError("Each exercise can only be added once");
+      setIsLoading(false);
+      return;
+    }
+
     const submissionData = {
       ...formData,
       exercises: formData.exercises.map(ex => ({

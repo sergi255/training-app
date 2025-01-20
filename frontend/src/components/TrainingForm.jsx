@@ -29,16 +29,24 @@ const TrainingForm = ({
   };
 
   const handleExerciseChange = (index, field, value) => {
-    const updatedExercises = formData.exercises.map((exercise, i) => {
-      if (i === index) {
-        return { ...exercise, [field]: value };
+    const newExercises = [...formData.exercises];
+    newExercises[index] = { ...newExercises[index], [field]: value };
+    
+    // If changing exercise ID, check for duplicates
+    if (field === 'exerciseId' && value) {
+      const isDuplicate = newExercises.some(
+        (ex, i) => i !== index && ex.exerciseId === value
+      );
+      
+      if (isDuplicate) {
+        // If duplicate found, don't update the value
+        return;
       }
-      return exercise;
-    });
-
+    }
+    
     onChange({
       ...formData,
-      exercises: updatedExercises
+      exercises: newExercises
     });
   };
 

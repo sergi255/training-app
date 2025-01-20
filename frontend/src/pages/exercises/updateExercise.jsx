@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
-import { Box, Typography, Alert, CircularProgress } from '@mui/material';
+import { Box, Typography, Alert, CircularProgress, Button } from '@mui/material';
 import { updateExercise, getSingleExercise } from '../../services/exercises';
 import ExerciseForm from '../../components/ExerciseForm';
 import { useAuth } from '../../context/AuthContext';
@@ -76,6 +76,13 @@ const UpdateExercise = () => {
         >
           Exercise not found
         </Alert>
+        <Button
+          variant="contained"
+          onClick={() => navigate('/exercises')}
+          sx={{ mt: 2 }}
+        >
+          Back to Exercises
+        </Button>
       </Box>
     );
   }

@@ -62,11 +62,18 @@ export const useTrainings = (endpoint = '/api/trainings') => {
   }, [endpoint, logout])
 
   const getTraining = async (id) => {
-    const result = await getSingleTraining(id);
-    if (!result.success) {
-      throw new Error(result.error);
+    try {
+      const result = await getSingleTraining(id);
+      if (!result.success) {
+        throw new Error(result.error || 'Failed to fetch training');
+      }
+      return result;  // Return the whole result object instead of just data
+    } catch (err) {
+      if (err.message?.includes('Unauthorized')) {
+        logout();
+      }
+      throw err;
     }
-    return result.data;
   };
 
   const handleUpdateTraining = async (id, formData) => {
@@ -211,7 +218,17 @@ export const updateTraining = async (id, formData) => {
     })
 
     handleApiError(response);
-    return { success: true }
+    
+    if (response.status === 404) {
+      return { 
+        success: false, 
+        error: 'Training not found',
+        isAuthError: false
+      }
+    }
+
+    const data = await response.json()
+    return { success: true, data }
   } catch (error) {
     return { 
       success: false, 
@@ -227,19 +244,28 @@ export const getSingleTraining = async (id) => {
       headers: {
         'Authorization': `Bearer ${localStorage.getItem('token')}`
       }
-    })
+    });
 
-    handleApiError(response);
-    const data = await response.json()
-    return { success: true, data }
+    if (!response.ok) {
+      if (response.status === 404) {
+        return { 
+          success: false, 
+          error: 'Training not found'
+        };
+      }
+      handleApiError(response);
+    }
+
+    const data = await response.json();
+    return { success: true, data };
   } catch (error) {
     return { 
       success: false, 
       error: error.message,
-      isAuthError: error.message.includes('Unauthorized')
-    }
+      isAuthError: error.message?.includes('Unauthorized')
+    };
   }
-}
+};
 
 export const getAllExercises = async () => {
   try {

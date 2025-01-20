@@ -108,10 +108,7 @@ const Navbar = () => {
                     </div>
                   )}
                 </div>
-
-                <Link to="/profile" className="text-gray-300 hover:text-white px-3 py-2 rounded-md text-sm font-medium">
-                  Profile
-                </Link>
+                
                 <button
                   onClick={handleLogout}
                   className="text-gray-300 hover:text-white px-3 py-2 rounded-md text-sm font-medium"

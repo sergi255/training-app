@@ -16,7 +16,7 @@ const Exercises = () => {
     setIsLoading(true)
     try {
       const token = localStorage.getItem('token')
-      const response = await fetch('http://localhost:8080/api/exercises/all', {
+      const response = await fetch('http://localhost:8080/api/admin/exercises/all', {
         headers: {
           'Content-Type': 'application/json',
           'Authorization': `Bearer ${token}`
@@ -89,7 +89,6 @@ const Exercises = () => {
             ) : null
           }
         >
-          {error}
         </Alert>
       </Container>
     )

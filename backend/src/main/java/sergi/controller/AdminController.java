@@ -73,4 +73,14 @@ public class AdminController {
             @RequestBody TrainingDto trainingDto) {
         return ResponseEntity.ok(adminService.updateTraining(trainingId, trainingDto));
     }
+
+    @GetMapping("/exercises/all")
+    public ResponseEntity<List<ExerciseDto>> getAllExercises() {
+        return ResponseEntity.ok(adminService.getAllExercises());
+    }
+
+    @GetMapping("/trainings/all")
+    public ResponseEntity<List<TrainingDto>> getAllTrainings() {
+        return ResponseEntity.ok(trainingService.getAllTrainings());
+    }
 }

@@ -51,7 +51,7 @@ const UpdateExercise = () => {
       if (response.status === 401) {
         logout();
       }
-      throw new Error('Failed to update exercise');
+      throw new Error('Access forbidden - You dont have permission');
     }
 
     return await response.json();

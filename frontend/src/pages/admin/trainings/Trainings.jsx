@@ -10,14 +10,15 @@ const Trainings = () => {
   const [error, setError] = useState(null)
   const [deleteDialog, setDeleteDialog] = useState(false)
   const [selectedTraining, setSelectedTraining] = useState(null)
-    const [exercises, setExercises] = useState({})
+  const [exercises, setExercises] = useState({})
   const navigate = useNavigate()
+  const isAdmin = true; // This should be replaced with actual admin check logic
 
   const fetchTrainings = async () => {
     setIsLoading(true)
     try {
       const token = localStorage.getItem('token')
-      const response = await fetch('http://localhost:8080/api/trainings/all', {
+      const response = await fetch('http://localhost:8080/api/admin/trainings/all', {
         headers: {
           'Content-Type': 'application/json',
           'Authorization': `Bearer ${token}`
@@ -37,7 +38,7 @@ const Trainings = () => {
 
   const fetchExercisesFromAPI = async () => {
     const token = localStorage.getItem('token')
-    const response = await fetch('http://localhost:8080/api/exercises/all', {
+    const response = await fetch('http://localhost:8080/api/admin/exercises/all', {
       headers: {
         'Authorization': `Bearer ${token}`
       }
@@ -102,6 +103,16 @@ const Trainings = () => {
     }).join(', ')
   }
 
+  if (!isAdmin) {
+    return (
+      <Container>
+        <Typography color="error" sx={{ mt: 4 }}>
+          Access Denied
+        </Typography>
+      </Container>
+    );
+  }
+
   if (isLoading) {
     return (
       <Container sx={{ display: 'flex', justifyContent: 'center', mt: 4 }}>
@@ -124,7 +135,6 @@ const Trainings = () => {
             ) : null
           }
         >
-          {error}
         </Alert>
       </Container>
     )

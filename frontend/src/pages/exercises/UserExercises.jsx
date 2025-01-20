@@ -1,21 +1,45 @@
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { useAuth } from '../../context/AuthContext'
-import { useUserExercises } from '../../services/exercises'
 import { useNavigate } from 'react-router-dom'
-import { useDeleteExercise } from '../../services/exercises'
-import { 
-  Container, Typography, Paper, Table, TableBody, TableCell, 
-  TableContainer, TableHead, TableRow, CircularProgress, Button,
-  Dialog, DialogTitle, DialogContent, DialogActions, DialogContentText, Alert
-} from '@mui/material'
-
+import { Container, Typography, Paper, Table, TableBody, TableCell, 
+         TableContainer, TableHead, TableRow, CircularProgress,
+        Alert, Button, Dialog, DialogActions, DialogTitle, DialogContent, DialogContentText } from '@mui/material'
 const Exercises = () => {
-  const { username } = useAuth()
-  const { exercises, isLoading, error } = useUserExercises()
-  const { handleDelete, deleteError } = useDeleteExercise()
+  const [exercises, setExercises] = useState([])
+  const [isLoading, setIsLoading] = useState(true)
+  const [error, setError] = useState(null)
   const navigate = useNavigate()
+  const [deleteError, setDeleteError] = useState(null)
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false)
   const [exerciseToDelete, setExerciseToDelete] = useState(null)
+
+  const { logout, username } = useAuth()
+  useEffect(() => {
+    const fetchExercises = async () => {
+      try {
+        const token = localStorage.getItem('token')
+        const response = await fetch('http://localhost:8080/api/exercises', {
+          headers: {
+            'Authorization': `Bearer ${token}`
+          }
+        })
+        if (!response.ok) {
+          if (response.status === 401) {
+            logout()
+            return
+          }
+          throw new Error('Failed to fetch exercises')
+        }
+        const data = await response.json()
+        setExercises(data)
+      } catch (err) {
+        setError(err.message)
+      } finally {
+        setIsLoading(false)
+      }
+    }
+    fetchExercises()
+  }, [logout])
 
   const handleDeleteClick = (exercise) => {
     setExerciseToDelete(exercise)
@@ -23,10 +47,27 @@ const Exercises = () => {
   }
 
   const handleDeleteConfirm = async () => {
-    await handleDelete(exerciseToDelete.id);
-    setDeleteDialogOpen(false);
-    setExerciseToDelete(null);
-  };
+    try {
+      const token = localStorage.getItem('token')
+      const response = await fetch(`http://localhost:8080/api/exercises/${exerciseToDelete.id}`, {
+        method: 'DELETE',
+        headers: {
+          'Authorization': `Bearer ${token}`
+        }
+      })
+      if (!response.ok) {
+        if (response.status === 401) {
+          logout()
+          return
+        }
+        throw new Error('Failed to delete exercise')
+      }
+      setExercises(exercises.filter((exercise) => exercise.id !== exerciseToDelete.id))
+      setDeleteDialogOpen(false)
+    } catch (err) {
+      setDeleteError(err.message)
+    }
+  }
 
   if (isLoading) {
     return (

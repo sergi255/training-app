@@ -48,13 +48,29 @@ public class AdminController {
         return ResponseEntity.ok().build();
     }
 
-    @GetMapping("/exercises/all")
-    public ResponseEntity<List<ExerciseDto>> getAllExercises() {
-        return ResponseEntity.ok(adminService.getAllExercises());
+    @DeleteMapping("/exercises/{exerciseId}")
+    public ResponseEntity<?> deleteExercise(@PathVariable Long exerciseId) {
+        adminService.deleteExercise(exerciseId);
+        return ResponseEntity.ok().build();
     }
 
-    @GetMapping("/trainings/all")
-    public ResponseEntity<List<TrainingDto>> getAllTrainings() {
-        return ResponseEntity.ok(trainingService.getAllTrainings());
+    @PutMapping("/exercises/{exerciseId}")
+    public ResponseEntity<?> updateExercise(
+            @PathVariable Long exerciseId,
+            @RequestBody ExerciseDto exerciseDto) {
+        return ResponseEntity.ok(adminService.updateExercise(exerciseId, exerciseDto));
+    }
+
+    @DeleteMapping("/trainings/{trainingId}")
+    public ResponseEntity<?> deleteTraining(@PathVariable Long trainingId) {
+        adminService.deleteTraining(trainingId);
+        return ResponseEntity.ok().build();
+    }
+
+    @PutMapping("/trainings/{trainingId}")
+    public ResponseEntity<?> updateTraining(
+            @PathVariable Long trainingId,
+            @RequestBody TrainingDto trainingDto) {
+        return ResponseEntity.ok(adminService.updateTraining(trainingId, trainingDto));
     }
 }

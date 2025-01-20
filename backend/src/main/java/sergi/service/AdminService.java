@@ -69,14 +69,19 @@ public class AdminService {
         userRepository.deleteById(userId);
     }
 
-    public ExerciseDto updateUserExercise(Long userId, Long exerciseId, ExerciseDto exerciseDto) {
-        validateUserExists(userId);
+    @Transactional
+    public void deleteExercise(Long exerciseId) {
         Exercise exercise = exerciseRepository.findById(exerciseId)
-                .orElseThrow(() -> new ExerciseNotFoundException("Exercise with id " + exerciseId + " not found"));
+                .orElseThrow(() -> new ExerciseNotFoundException("Exercise not found with id: " + exerciseId));
+        
+        // Delete related training exercises first
+        exerciseRepository.delete(exercise);
+    }
 
-        if (!exercise.getUser().getId().equals(userId)) {
-            throw new UnauthorizedAccessException("Exercise doesn't belong to specified user");
-        }
+    @Transactional
+    public ExerciseDto updateExercise(Long exerciseId, ExerciseDto exerciseDto) {
+        Exercise exercise = exerciseRepository.findById(exerciseId)
+                .orElseThrow(() -> new ExerciseNotFoundException("Exercise not found with id: " + exerciseId));
 
         exercise.setName(exerciseDto.getName());
         exercise.setDescription(exerciseDto.getDescription());
@@ -86,59 +91,49 @@ public class AdminService {
         return mapToExerciseDto(updatedExercise);
     }
 
-    public TrainingDto updateUserTraining(Long userId, Long trainingId, TrainingDto trainingDto) {
-        validateUserExists(userId);
+    @Transactional
+    public void deleteTraining(Long trainingId) {
         Training training = trainingRepository.findById(trainingId)
-                .orElseThrow(() -> new TrainingNotFoundException("Training with id " + trainingId + " not found"));
+                .orElseThrow(() -> new TrainingNotFoundException("Training not found with id: " + trainingId));
+        trainingRepository.delete(training);
+    }
 
-        if (!training.getUser().getId().equals(userId)) {
-            throw new UnauthorizedAccessException("Training doesn't belong to specified user");
-        }
+    @Transactional
+    public TrainingDto updateTraining(Long trainingId, TrainingDto trainingDto) {
+        Training training = trainingRepository.findById(trainingId)
+                .orElseThrow(() -> new TrainingNotFoundException("Training not found with id: " + trainingId));
 
         training.setName(trainingDto.getName());
         training.setDate(trainingDto.getDate());
-
-        Set<TrainingExercise> trainingExercises = new HashSet<>();
-
-        trainingDto.getExercises().forEach(exerciseRequest -> {
-            TrainingExercise te = new TrainingExercise();
-            te.setTraining(training);
-            te.setExercise(exerciseRepository.findById(exerciseRequest.getExerciseId())
-                    .orElseThrow(() -> new RuntimeException("Exercise not found")));
-            te.setSets(exerciseRequest.getSets());
-            te.setReps(exerciseRequest.getReps());
-            trainingExercises.add(te);
-        });
-
-        training.setTrainingExercises(trainingExercises);
+        
+        // Clear existing exercises and add new ones
+        training.getTrainingExercises().clear();
+        
+        Set<TrainingExercise> newExercises = trainingDto.getExercises().stream()
+                .map(exerciseRequest -> {
+                    Exercise exercise = exerciseRepository.findById(exerciseRequest.getExerciseId())
+                            .orElseThrow(() -> new ExerciseNotFoundException("Exercise not found"));
+                    
+                    TrainingExercise te = new TrainingExercise();
+                    te.setTraining(training);
+                    te.setExercise(exercise);
+                    te.setSets(exerciseRequest.getSets());
+                    te.setReps(exerciseRequest.getReps());
+                    return te;
+                })
+                .collect(Collectors.toSet());
+        
+        training.setTrainingExercises(newExercises);
+        
         Training updatedTraining = trainingRepository.save(training);
         return mapToTrainingDto(updatedTraining);
     }
 
-    @Transactional
-    public void deleteUserExercise(Long userId, Long exerciseId) {
-        validateUserExists(userId);
-        Exercise exercise = exerciseRepository.findById(exerciseId)
-                .orElseThrow(() -> new RuntimeException("Exercise not found"));
-
-        if (!exercise.getUser().getId().equals(userId)) {
-            throw new RuntimeException("Exercise doesn't belong to specified user");
-        }
-
-        exerciseRepository.delete(exercise);
-    }
-
-    @Transactional
-    public void deleteUserTraining(Long userId, Long trainingId) {
-        validateUserExists(userId);
-        Training training = trainingRepository.findById(trainingId)
-                .orElseThrow(() -> new RuntimeException("Training not found"));
-
-        if (!training.getUser().getId().equals(userId)) {
-            throw new RuntimeException("Training doesn't belong to specified user");
-        }
-
-        trainingRepository.delete(training);
+    public List<TrainingDto> getAllTrainings() {
+        return trainingRepository.findAll()
+                .stream()
+                .map(this::mapToTrainingDto)
+                .collect(Collectors.toList());
     }
 
     private void validateUserExists(Long userId) {

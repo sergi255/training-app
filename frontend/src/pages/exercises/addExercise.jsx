@@ -1,7 +1,6 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Box, Typography, Alert } from '@mui/material';
-import { addExercise } from '../../services/exercises';
 import ExerciseForm from '../../components/ExerciseForm';
 
 const AddExercise = () => {
@@ -13,22 +12,44 @@ const AddExercise = () => {
     muscleGroup: '',
   });
 
-  const handleChange = (e) => {
-    setFormData({
-      ...formData,
-      [e.target.name]: e.target.value
+  const addExerciseToAPI = async (exerciseData) => {
+    const response = await fetch('http://localhost:8080/api/exercises', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${localStorage.getItem('token')}`
+      },
+      body: JSON.stringify(exerciseData)
     });
+
+    if (!response.ok) {
+      const errorData = await response.json().catch(() => ({}));
+      throw new Error(errorData.message || 'Failed to add exercise');
+    }
+
+    return await response.json();
   };
 
-  const handleSubmit = async (e) => {
+  const handleFormSubmit = async (e) => {
     e.preventDefault();
-    const result = await addExercise(formData, '/api/exercises');
-    
-    if (result.success) {
+    try {
+      await addExerciseToAPI(formData);
       navigate('/exercises');
-    } else {
-      setError(result.error);
+    } catch (error) {
+      setError(error.message);
     }
+  };
+
+  const handleInputChange = (e) => {
+    const { name, value } = e.target;
+    setFormData(prevData => ({
+      ...prevData,
+      [name]: value
+    }));
+  };
+
+  const handleCancel = () => {
+    navigate('/exercises');
   };
 
   return (
@@ -43,9 +64,9 @@ const AddExercise = () => {
       )}
       <ExerciseForm
         formData={formData}
-        onSubmit={handleSubmit}
-        onChange={handleChange}
-        onCancel={() => navigate('/exercises')}
+        onSubmit={handleFormSubmit}
+        onChange={handleInputChange}
+        onCancel={handleCancel}
         submitButtonText="Add Exercise"
       />
     </Box>

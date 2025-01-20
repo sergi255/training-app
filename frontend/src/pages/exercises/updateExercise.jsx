@@ -1,7 +1,6 @@
 import { useState, useEffect } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import { Box, Typography, Alert, CircularProgress, Button } from '@mui/material';
-import { updateExercise, getSingleExercise } from '../../services/exercises';
 import ExerciseForm from '../../components/ExerciseForm';
 import { useAuth } from '../../context/AuthContext';
 
@@ -11,53 +10,94 @@ const UpdateExercise = () => {
   const { logout } = useAuth();
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState(null);
+  const [notFound, setNotFound] = useState(false);
   const [formData, setFormData] = useState({
     name: '',
     description: '',
     muscleGroup: '',
   });
-  const [notFound, setNotFound] = useState(false);
 
-  useEffect(() => {
-    const fetchExercise = async () => {
-      const result = await getSingleExercise(id);
-      if (result.success) {
-        setFormData(result.data);
-      } else {
-        setError(result.error);
-        if (result.error.includes('not found')) {
-          setNotFound(true);
-        }
-        if (result.isAuthError) {
-          logout();
-        }
+  const fetchExerciseFromAPI = async (exerciseId) => {
+    const response = await fetch(`http://localhost:8080/api/exercises/${exerciseId}`, {
+      headers: {
+        'Authorization': `Bearer ${localStorage.getItem('token')}`
       }
-      setIsLoading(false);
-    };
-
-    fetchExercise();
-  }, [id, logout]);
-
-  const handleChange = (e) => {
-    setFormData({
-      ...formData,
-      [e.target.name]: e.target.value
     });
-  };
 
-  const handleSubmit = async (e) => {
-    e.preventDefault();
-    setIsLoading(true);
-    const result = await updateExercise(id, formData);
-    if (result.success) {
-      navigate('/exercises');
-    } else {
-      setError(result.error);
-      if (result.isAuthError) {
+    if (!response.ok) {
+      if (response.status === 404) {
+        throw new Error('Exercise not found');
+      }
+      if (response.status === 401) {
         logout();
       }
+      throw new Error('Failed to fetch exercise');
     }
-    setIsLoading(false);
+
+    return await response.json();
+  };
+
+  const updateExerciseInAPI = async (exerciseId, exerciseData) => {
+    const response = await fetch(`http://localhost:8080/api/exercises/${exerciseId}`, {
+      method: 'PUT',
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${localStorage.getItem('token')}`
+      },
+      body: JSON.stringify(exerciseData)
+    });
+
+    if (!response.ok) {
+      if (response.status === 401) {
+        logout();
+      }
+      throw new Error('Failed to update exercise');
+    }
+
+    return await response.json();
+  };
+
+  const loadExercise = async () => {
+    try {
+      const data = await fetchExerciseFromAPI(id);
+      setFormData(data);
+    } catch (err) {
+      setError(err.message);
+      if (err.message.includes('not found')) {
+        setNotFound(true);
+      }
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    loadExercise();
+  }, [id]);
+
+  const handleInputChange = (e) => {
+    const { name, value } = e.target;
+    setFormData(prevData => ({
+      ...prevData,
+      [name]: value
+    }));
+  };
+
+  const handleFormSubmit = async (e) => {
+    e.preventDefault();
+    setIsLoading(true);
+    try {
+      await updateExerciseInAPI(id, formData);
+      navigate('/exercises');
+    } catch (err) {
+      setError(err.message);
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  const handleCancel = () => {
+    navigate('/exercises');
   };
 
   if (isLoading) {
@@ -71,14 +111,12 @@ const UpdateExercise = () => {
   if (notFound) {
     return (
       <Box sx={{ maxWidth: 600, mx: 'auto', p: 3 }}>
-        <Alert 
-          severity="error" 
-        >
+        <Alert severity="error">
           Exercise not found
         </Alert>
         <Button
           variant="contained"
-          onClick={() => navigate('/exercises')}
+          onClick={handleCancel}
           sx={{ mt: 2 }}
         >
           Back to Exercises
@@ -99,9 +137,9 @@ const UpdateExercise = () => {
       )}
       <ExerciseForm
         formData={formData}
-        onSubmit={handleSubmit}
-        onChange={handleChange}
-        onCancel={() => navigate('/exercises')}
+        onSubmit={handleFormSubmit}
+        onChange={handleInputChange}
+        onCancel={handleCancel}
         submitButtonText="Update Exercise"
       />
     </Box>

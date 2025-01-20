@@ -12,7 +12,9 @@ import AddExercise from './pages/exercises/addExercise'
 import UpdateExercise from './pages/exercises/updateExercise'
 import AddTraining from './pages/trainings/AddTraining'
 import UpdateTraining from './pages/trainings/updateTraining'
-import Admin from './pages/admin/Users'
+import AdminUsers from './pages/admin/users/Users'
+import AdminExercises from './pages/admin/exercises/Exercises'
+import AdminUpdateExercise from './pages/admin/exercises/updateExercise'
 
 import './App.css'
 
@@ -24,7 +26,9 @@ function App() {
         <Routes>
           <Route path="/" element={<Home />} />
           <Route path="/login" element={<Login />} />
-          <Route path="/admin" element={<Admin />} />
+          <Route path="/admin/users" element={<AdminUsers />} />
+          <Route path="/admin/exercises" element={<AdminExercises />} />
+          <Route path="/admin/exercises/update/:id" element={<AdminUpdateExercise />} />
           <Route path="/register" element={<Register />} />
           <Route path="/trainings/all" element={<Trainings />} />
           <Route path="/trainings" element={<UserTrainings />} />

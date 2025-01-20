@@ -154,6 +154,7 @@ export const updateExercise = async (id, formData) => {
   }
 };
 
+
 export const getSingleExercise = async (id) => {
   try {
     const response = await fetch(`http://localhost:8080/api/exercises/${id}`, {

@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
-import { Box, Typography, Alert, CircularProgress, Snackbar} from '@mui/material';
+import { Box, Typography, Alert, CircularProgress } from '@mui/material';
 import { updateExercise, getSingleExercise } from '../../services/exercises';
 import ExerciseForm from '../../components/ExerciseForm';
 import { useAuth } from '../../context/AuthContext';
@@ -16,7 +16,6 @@ const UpdateExercise = () => {
     description: '',
     muscleGroup: '',
   });
-  const [snackbar, setSnackbar] = useState({ open: false, message: '', severity: 'info' });
   const [notFound, setNotFound] = useState(false);
 
   useEffect(() => {
@@ -51,12 +50,7 @@ const UpdateExercise = () => {
     setIsLoading(true);
     const result = await updateExercise(id, formData);
     if (result.success) {
-      setSnackbar({
-        open: true,
-        message: 'Exercise updated successfully!',
-        severity: 'success'
-      });
-      setTimeout(() => navigate('/exercises'), 1500);
+      navigate('/exercises');
     } else {
       setError(result.error);
       if (result.isAuthError) {
@@ -103,15 +97,6 @@ const UpdateExercise = () => {
         onCancel={() => navigate('/exercises')}
         submitButtonText="Update Exercise"
       />
-      <Snackbar
-        open={snackbar.open}
-        autoHideDuration={6000}
-        onClose={() => setSnackbar({ ...snackbar, open: false })}
-      >
-        <Alert severity={snackbar.severity} sx={{ width: '100%' }}>
-          {snackbar.message}
-        </Alert>
-      </Snackbar>
     </Box>
   );
 };

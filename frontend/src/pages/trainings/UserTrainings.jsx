@@ -4,7 +4,8 @@ import { useUserTrainings, useDeleteTraining } from '../../services/trainings'
 import { 
   Container, Typography, Paper, Table, TableBody, TableCell, 
   TableContainer, TableHead, TableRow, CircularProgress, Button,
-  Dialog, DialogTitle, DialogContent, DialogActions, DialogContentText
+  Dialog, DialogTitle, DialogContent, DialogActions, DialogContentText,
+  Alert
 } from '@mui/material'
 import { useNavigate } from 'react-router-dom'
 
@@ -39,9 +40,19 @@ const Trainings = () => {
   if (error) {
     return (
       <Container>
-        <Typography color="error" sx={{ mt: 4 }}>
+        <Alert 
+          severity="error" 
+          sx={{ mt: 4 }}
+          action={
+            error.includes('Unauthorized') ? (
+              <Button color="inherit" size="small" onClick={() => window.location.reload()}>
+                Refresh
+              </Button>
+            ) : null
+          }
+        >
           {error}
-        </Typography>
+        </Alert>
       </Container>
     )
   }
@@ -51,10 +62,15 @@ const Trainings = () => {
       <Typography variant="h4" gutterBottom>
         {username}&apos;s Trainings
       </Typography>
-      {deleteError && (
-        <Typography color="error" sx={{ mb: 2 }}>
-          {deleteError}
+      {trainings.length === 0 && (
+        <Typography sx={{ mt: 2, textAlign: 'center' }}>
+          No trainings found. Create your first training!
         </Typography>
+      )}
+      {deleteError && (
+        <Alert severity="error" sx={{ mt: 2 }}>
+          {deleteError}
+        </Alert>
       )}
       <TableContainer component={Paper}>
         <Table>

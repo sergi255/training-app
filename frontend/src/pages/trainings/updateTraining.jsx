@@ -4,6 +4,7 @@ import { Box, Typography, Container, Alert, CircularProgress } from '@mui/materi
 import dayjs from 'dayjs';
 import { useTrainings } from '../../services/trainings';
 import TrainingForm from '../../components/TrainingForm';
+import { useAuth } from '../../context/AuthContext';  // Fixed import path
 
 const UpdateTraining = () => {
   const { id } = useParams();
@@ -11,7 +12,9 @@ const UpdateTraining = () => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
   const [initialData, setInitialData] = useState(null);
+  const [notFound, setNotFound] = useState(false);
   const { updateTraining, getTraining } = useTrainings();
+  const { logout } = useAuth();
 
   useEffect(() => {
     const fetchTraining = async () => {
@@ -31,16 +34,20 @@ const UpdateTraining = () => {
         setLoading(false);
         setInitialData(mappedData);
       } catch (err) {
-        setError('Failed to load training');
         setLoading(false);
-        console.error(err);
+        if (err.message.includes('not found')) {
+          setNotFound(true);
+        } else if (err.message.includes('Unauthorized')) {
+          logout();
+        }
+        setError(err.message);
       }
     };
 
     if (loading) {
       fetchTraining();
     }
-  }, [id, getTraining, loading]);
+  }, [id, getTraining, loading, logout]);
 
   const handleSubmit = async (formData) => {
     try {
@@ -62,6 +69,28 @@ const UpdateTraining = () => {
     }
   };
 
+  if (loading) {
+    return (
+      <Box display="flex" justifyContent="center" mt={4}>
+        <CircularProgress />
+      </Box>
+    );
+  }
+
+  if (notFound) {
+    return (
+      <Container maxWidth="sm">
+        <Box sx={{ mt: 4 }}>
+          <Alert 
+            severity="error" 
+          >
+            Training not found
+          </Alert>
+        </Box>
+      </Container>
+    );
+  }
+
   return (
     <Container maxWidth="sm">
       <Box sx={{ mt: 4, mb: 4 }}>
@@ -71,18 +100,12 @@ const UpdateTraining = () => {
         
         {error && <Alert severity="error" sx={{ mb: 2 }}>{error}</Alert>}
         
-        {loading ? (
-          <Box sx={{ display: 'flex', justifyContent: 'center', my: 4 }}>
-            <CircularProgress />
-          </Box>
-        ) : (
-          initialData && (
-            <TrainingForm 
-              initialData={initialData}
-              onSubmit={handleSubmit}
-              submitButtonText="Update Training"
-            />
-          )
+        {initialData && (
+          <TrainingForm 
+            initialData={initialData}
+            onSubmit={handleSubmit}
+            submitButtonText="Update Training"
+          />
         )}
       </Box>
     </Container>

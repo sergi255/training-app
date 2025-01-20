@@ -117,10 +117,22 @@ export const deleteExercise = async (id) => {
       }
     });
 
+    if (response.status === 500) {
+      return { 
+        success: false, 
+        error: 'Cannot delete exercise that is used in trainings',
+        isExerciseInUse: true
+      };
+    }
+
     handleApiError(response);
     return { success: true };
   } catch (error) {
-    return { success: false, error: error.message };
+    return { 
+      success: false, 
+      error: error.message,
+      isAuthError: error.message.includes('Unauthorized')
+    };
   }
 };
 

@@ -45,10 +45,10 @@ const Home = () => {
                     <p className="text-gray-600">Ready for your next workout?</p>
                     <div className="pt-6 flex gap-4">
                       <Link
-                        to="/dashboard"
+                        to="/trainings"
                         className="bg-indigo-600 text-white px-4 py-2 rounded-md hover:bg-indigo-700 transition-colors"
                       >
-                        Go to Dashboard
+                        Go to Trainings
                       </Link>
                       <button
                         onClick={logout}

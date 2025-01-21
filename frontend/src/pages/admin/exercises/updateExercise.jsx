@@ -17,7 +17,37 @@ const UpdateExercise = () => {
     muscleGroup: '',
   });
   const [notFound, setNotFound] = useState(false);
+
+  useEffect(() => {
+    const fetchExercise = async () => {
+      const result = await getSingleExercise(id);
+      if (result.success) {
+        setFormData(result.data);
+      } else {
+        setError(result.error);
+        if (result.error.includes('not found')) {
+          setNotFound(true);
+        }
+        if (result.isAuthError) {
+          logout();
+        }
+      }
+      setIsLoading(false);
+    };
+
+    fetchExercise();
+  }, [id, logout]);
+
+  const role = localStorage.getItem('role');
   
+  if (role !== 'ROLE_ADMIN') {
+    return (
+      <Box sx={{ maxWidth: 600, mx: 'auto', p: 3 }}>
+        <Alert severity="error">Access Denied - Admin privileges required</Alert>
+      </Box>
+    );
+  }
+
   const updateExercise = async (id, formData) => {
     try {
       const response = await fetch(`http://localhost:8080/api/admin/exercises/${id}`, {
@@ -40,26 +70,6 @@ const UpdateExercise = () => {
   }
 };
 
-
-  useEffect(() => {
-    const fetchExercise = async () => {
-      const result = await getSingleExercise(id);
-      if (result.success) {
-        setFormData(result.data);
-      } else {
-        setError(result.error);
-        if (result.error.includes('not found')) {
-          setNotFound(true);
-        }
-        if (result.isAuthError) {
-          logout();
-        }
-      }
-      setIsLoading(false);
-    };
-
-    fetchExercise();
-  }, [id, logout]);
 
   const handleChange = (e) => {
     setFormData({
@@ -101,7 +111,7 @@ const UpdateExercise = () => {
         </Alert>
         <Button
           variant="contained"
-          onClick={() => navigate('/exercises')}
+          onClick={() => navigate('/admin/exercises')}
           sx={{ mt: 2 }}
         >
           Back to Exercises
@@ -124,7 +134,7 @@ const UpdateExercise = () => {
         formData={formData}
         onSubmit={handleSubmit}
         onChange={handleChange}
-        onCancel={() => navigate('/exercises')}
+        onCancel={() => navigate('/admin/exercises')}
         submitButtonText="Update Exercise"
       />
     </Box>

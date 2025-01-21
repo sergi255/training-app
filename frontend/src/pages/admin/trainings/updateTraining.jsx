@@ -19,6 +19,60 @@ const UpdateTraining = () => {
   const [exercises, setExercises] = useState([]);
   const [notFound, setNotFound] = useState(false);
 
+  useEffect(() => {
+    const initialize = async () => {
+      if (!id) {
+        setNotFound(true);
+        setIsLoading(false);
+        return;
+      }
+
+      const exercisesResult = await fetchExercises();
+      if (!exercisesResult.success) {
+        setError(exercisesResult.error);
+        if (exercisesResult.isAuthError) {
+          logout();
+        }
+        setIsLoading(false);
+        return;
+      }
+
+      const result = await getTraining(id);
+      if (result.success) {
+        setFormData({
+          name: result.data.name,
+          date: dayjs(result.data.date),
+          exercises: result.data.exercises.map(ex => ({
+            exerciseId: ex.exerciseId ? ex.exerciseId.toString() : ex.id.toString(),
+            sets: ex.sets ? ex.sets.toString() : '',
+            reps: ex.reps ? ex.reps.toString() : ''
+          }))
+        });
+      } else {
+        setError(result.error);
+        if (result.isNotFound) {
+          setNotFound(true);
+        }
+        if (result.isAuthError) {
+          logout();
+        }
+      }
+      setIsLoading(false);
+    };
+
+    initialize();
+  }, [id, logout]);
+
+  const role = localStorage.getItem('role');
+  
+  if (role !== 'ROLE_ADMIN') {
+    return (
+      <Box sx={{ maxWidth: 600, mx: 'auto', p: 3 }}>
+        <Alert severity="error">Access Denied - Admin privileges required</Alert>
+      </Box>
+    );
+  }
+
   const getTraining = async (id) => {
     try {
       const response = await fetch(`http://localhost:8080/api/trainings/${id}`, {
@@ -101,50 +155,6 @@ const UpdateTraining = () => {
       return { success: false, error: error.message };
     }
   };
-
-  useEffect(() => {
-    const initialize = async () => {
-      if (!id) {
-        setNotFound(true);
-        setIsLoading(false);
-        return;
-      }
-
-      const exercisesResult = await fetchExercises();
-      if (!exercisesResult.success) {
-        setError(exercisesResult.error);
-        if (exercisesResult.isAuthError) {
-          logout();
-        }
-        setIsLoading(false);
-        return;
-      }
-
-      const result = await getTraining(id);
-      if (result.success) {
-        setFormData({
-          name: result.data.name,
-          date: dayjs(result.data.date),
-          exercises: result.data.exercises.map(ex => ({
-            exerciseId: ex.exerciseId ? ex.exerciseId.toString() : ex.id.toString(),
-            sets: ex.sets ? ex.sets.toString() : '',
-            reps: ex.reps ? ex.reps.toString() : ''
-          }))
-        });
-      } else {
-        setError(result.error);
-        if (result.isNotFound) {
-          setNotFound(true);
-        }
-        if (result.isAuthError) {
-          logout();
-        }
-      }
-      setIsLoading(false);
-    };
-
-    initialize();
-  }, [id, logout]);
 
   const handleSubmit = async (e) => {
     e.preventDefault();

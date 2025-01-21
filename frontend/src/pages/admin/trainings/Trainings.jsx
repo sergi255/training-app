@@ -12,7 +12,7 @@ const Trainings = () => {
   const [selectedTraining, setSelectedTraining] = useState(null)
   const [exercises, setExercises] = useState({})
   const navigate = useNavigate()
-  const isAdmin = true; // This should be replaced with actual admin check logic
+  const isAdmin = localStorage.getItem('role') === 'ROLE_ADMIN'
 
   const fetchTrainings = async () => {
     setIsLoading(true)
@@ -106,9 +106,9 @@ const Trainings = () => {
   if (!isAdmin) {
     return (
       <Container>
-        <Typography color="error" sx={{ mt: 4 }}>
-          Access Denied
-        </Typography>
+        <Alert severity="error" sx={{ mt: 4 }}>
+          Access Denied - Admin privileges required
+        </Alert>
       </Container>
     );
   }
@@ -135,6 +135,7 @@ const Trainings = () => {
             ) : null
           }
         >
+          {error}
         </Alert>
       </Container>
     )

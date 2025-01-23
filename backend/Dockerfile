@@ -1,9 +1,8 @@
-FROM openjdk:23-slim
-
+FROM eclipse-temurin:23-jre-alpine
 WORKDIR /app
 
+# Kopiuj plik JAR z lokalnego systemu
 COPY target/*.jar app.jar
-COPY src/main/resources/application.properties application.properties
 
 EXPOSE 8080
 

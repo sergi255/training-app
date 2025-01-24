@@ -2,7 +2,7 @@
 
 A full-stack web application for managing workout exercises and training plans. Built with Spring Boot and React.
 
-## Features
+## ✨ Features
 
 - User authentication and authorization
 - Exercise management
@@ -10,7 +10,7 @@ A full-stack web application for managing workout exercises and training plans. 
 - Admin dashboard for user management
 - Responsive Material UI design
 
-## Stack Technology 🛠
+## 🛠 Stack Technology 
 
 ### Frontend
 - React (v18.3.1) - Core frontend framework
@@ -30,7 +30,7 @@ A full-stack web application for managing workout exercises and training plans. 
 - MySQL - Database
 - Maven - Build automation tool
 
-## Getting Started
+## 🚀 Getting Started
 
 ### Prerequisites
 - Node.js (v14+)
@@ -52,7 +52,7 @@ npm install
 npm run dev
 ```
 
-# Backend Setup Documentation
+### Backend Setup 
 
 1. Navigate to backend directory:
 ```bash
@@ -67,7 +67,7 @@ mvn clean install
 mvn spring-boot:run
 ```
 
-## Core Features 🎯
+## 🎯 Core Features 
 
 ### Authentication & Authorization
 - User registration
@@ -106,7 +106,7 @@ The application uses **JWT (JSON Web Tokens)** for authentication:
 - Protected routes and API endpoints
 
 
-## API Endpoints 🌐
+## 🌐 API Endpoints 
 
 ### Authentication
 - **POST** `/api/auth/login` - User login
@@ -132,7 +132,7 @@ The application uses **JWT (JSON Web Tokens)** for authentication:
 
 ---
 
-## Security
+## 🔒 Security
 
 ### Password Encryption
 - Passwords are securely encrypted using **BCrypt**.

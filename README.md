@@ -98,7 +98,7 @@ mvn spring-boot:run
 - View public exercises and training plans
 
 
-## Authentication
+## 🔑 Authentication
 The application uses **JWT (JSON Web Tokens)** for authentication:
 
 - Tokens are stored in `localStorage`

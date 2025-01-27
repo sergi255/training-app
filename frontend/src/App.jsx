@@ -26,22 +26,41 @@ function App() {
       <Router>
         <Navbar />
         <Routes>
-          <Route path="/" element={<Home />} />
-          <Route path="/login" element={<Login />} />
-          <Route path="/admin/users" element={<AdminUsers />} />
-          <Route path="/admin/exercises" element={<AdminExercises />} />
-          <Route path="/admin/exercises/update/:id" element={<AdminUpdateExercise />} />
-          <Route path="/admin/trainings" element={<AdminTrainings />} />
-          <Route path="/admin/trainings/update/:id" element={<AdminUpdateTraining />} />
-          <Route path="/register" element={<Register />} />
-          <Route path="/trainings/all" element={<Trainings />} />
-          <Route path="/trainings" element={<UserTrainings />} />
-          <Route path="/exercises/all" element={<Exercises />} />
-          <Route path="/exercises" element={<UserExercises />} />
-          <Route path="/exercises/add" element={<AddExercise />} />
-          <Route path="/exercises/update/:id" element={<UpdateExercise />} />
-          <Route path="/trainings/add" element={<AddTraining />} />
-          <Route path="/trainings/update/:id" element={<UpdateTraining />} />
+          {/* Auth routes */}
+          <Route path="/">
+            <Route path="/" element={<Home />} />
+            <Route path="login" element={<Login />} />
+            <Route path="register" element={<Register />} />
+          </Route>
+
+          {/* Admin routes */}
+          <Route path="admin">
+            <Route path="users" element={<AdminUsers />} />
+            <Route path="exercises">
+              <Route index element={<AdminExercises />} />
+              <Route path="update/:id" element={<AdminUpdateExercise />} />
+            </Route>
+            <Route path="trainings">
+              <Route index element={<AdminTrainings />} />
+              <Route path="update/:id" element={<AdminUpdateTraining />} />
+            </Route>
+          </Route>
+
+          {/* Exercise routes */}
+          <Route path="exercises">
+            <Route index element={<UserExercises />} />
+            <Route path="all" element={<Exercises />} />
+            <Route path="add" element={<AddExercise />} />
+            <Route path="update/:id" element={<UpdateExercise />} />
+          </Route>
+
+          {/* Training routes */}
+          <Route path="trainings">
+            <Route index element={<UserTrainings />} />
+            <Route path="all" element={<Trainings />} />
+            <Route path="add" element={<AddTraining />} />
+            <Route path="update/:id" element={<UpdateTraining />} />
+          </Route>
         </Routes>
       </Router>
     </AuthProvider>
